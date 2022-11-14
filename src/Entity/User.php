@@ -6,20 +6,20 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+class User implements \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 50, unique: true)]
     private ?string $email = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 225)]
     private ?string $password = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 50, nullable: true)]
     private ?string $role = null;
 
     public function getId(): ?int
@@ -61,5 +61,14 @@ class User
         $this->role = $role;
 
         return $this;
+    }
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->getId(),
+            "email" => $this->getEmail(),
+            "password" => $this->getPassword(),
+            "role" => $this->getRole()
+        ];
     }
 }

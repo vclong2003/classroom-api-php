@@ -6,7 +6,7 @@ use App\Repository\UserInfoRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserInfoRepository::class)]
-class UserInfo
+class UserInfo implements \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -106,5 +106,17 @@ class UserInfo
         $this->imageUrl = $imageUrl;
 
         return $this;
+    }
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->getId(),
+            "userId" => $this->getUserId(),
+            "name" => $this->getName(),
+            "age" => $this->getAge(),
+            "phoneNumber" => $this->getPhoneNumber(),
+            "address" => $this->getAddress(),
+            "imageUrl" => $this->getImageUrl(),
+        ];
     }
 }
