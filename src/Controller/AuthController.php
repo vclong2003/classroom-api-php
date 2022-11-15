@@ -40,7 +40,7 @@ class AuthController extends AbstractController
         $userInfo->setName($data['name']);
         $userInfoRepo->save($userInfo, true);
 
-        return new JsonResponse(["Message" => "Registered!"], 201, []);
+        return new JsonResponse(["msg" => "Registered!"], 201, []);
     }
 
     #[Route('/api/auth/login', name: 'app_auth_login', methods: ['POST'])]
@@ -57,9 +57,9 @@ class AuthController extends AbstractController
             $session->setExpire(time() + 604800);
             $sessionRepo->save($session, true);
 
-            return new JsonResponse(["userInfo" => $userInfoRepo->findOneBy(["userId" => $user->getId()]), "sessionId" => $session->getSessionId()], 200, []);
+            return new JsonResponse(["msg" => "Logged in", "sessionId" => $session->getSessionId()], 200, []);
         } else {
-            return new JsonResponse(["Error" => "Wrong password"], 400, []);
+            return new JsonResponse(["msg" => "Wrong password"], 400, []);
         }
     }
 
@@ -70,7 +70,7 @@ class AuthController extends AbstractController
         $sessionEntity = $sessionRepo->findOneBy(["sessionId" => $data]);
 
         if ($sessionEntity != null) {
-            return new JsonResponse(["userInfo" => $userInfoRepo->findOneBy(["userId" => $sessionEntity->getUserId()])], 202, []);
+            return new JsonResponse(["msg" => "Verified!"], 202, []);
         } else {
             return new JsonResponse(["msg" => "Verify failed!"], 406, []);
         }
