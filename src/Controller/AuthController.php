@@ -88,8 +88,8 @@ class AuthController extends AbstractController
                 $sessionRepo->save($session, true);
             }
             return new JsonResponse(["userInfo" => $userInfoRepo->findOneBy(["userId" => $user->getId()]), "sessionId" => $session->getSessionId()], 200, []);
-        } catch (\Exception $err) {
-            return new JsonResponse(["Error" => "Email or Password are incorrect"], 404, []);
+        } else {
+            return new JsonResponse(["Error" => "Wrong password"], 401, []);
         }
     }
 }
