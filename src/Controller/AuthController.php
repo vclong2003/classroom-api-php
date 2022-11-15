@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Session;
 use App\Entity\User;
 use App\Entity\UserInfo;
+use App\Repository\SessionRepository;
 use App\Repository\UserInfoRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,6 +32,7 @@ class AuthController extends AbstractController
         $user = new User();
         $user->setEmail($data['email']);
         $user->setPassword(password_hash($data['password'], PASSWORD_DEFAULT, []));
+
         $addedId = $userRepo->save($user, true);
 
         $userInfo = new UserInfo();
@@ -37,22 +40,26 @@ class AuthController extends AbstractController
         $userInfo->setName($data['name']);
         $userInfoRepo->save($userInfo, true);
 
-        return new JsonResponse($userInfo, 200, []);
+        return new JsonResponse(["Message" => "Registered!"], 201, []);
     }
 
     #[Route('/api/auth/login', name: 'app_auth_login', methods: ['POST'])]
-    public function login(UserRepository $userRepo, Request $request, UserInfoRepository $userInfoRepo)
+    public function login(UserRepository $userRepo, Request $request, UserInfoRepository $userInfoRepo, SessionRepository $sessionRepo)
     {
         $data = json_decode($request->getContent(), true); //convert data to associative array
         $user = $userRepo->findOneBy(["email" => $data['email']]);
         $isPasswordTrue = password_verify($data['password'], $user->getPassword());
 
         if ($isPasswordTrue) {
-            $userInfo = $userInfoRepo->findOneBy(["userId" => $user->getId()]);
+            $session = new Session();
+            $session->setUserId($user->getId());
+            $session->setSessionId(bin2hex(random_bytes(20)));
+            $session->setExpire(time() + 604800);
+            $sessionRepo->save($session, true);
 
-            return new JsonResponse(["id" => $user->getId()], 200, []);
+            return new JsonResponse(["userInfo" => $userInfoRepo->findOneBy(["userId" => $user->getId()]), "sessionId" => $session->getSessionId()], 200, []);
         } else {
-            return new JsonResponse(["msg" => "wrong"], 200, []);
+            return new JsonResponse(["Error" => "Wrong password"], 401, []);
         }
     }
 }

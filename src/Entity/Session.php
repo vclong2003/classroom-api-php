@@ -13,14 +13,14 @@ class Session
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 225)]
     private ?string $sessionId = null;
 
     #[ORM\Column]
     private ?int $userId = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $expire = null;
+    #[ORM\Column]
+    private ?int $expire = null;
 
     public function getId(): ?int
     {
