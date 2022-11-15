@@ -59,7 +59,20 @@ class AuthController extends AbstractController
 
             return new JsonResponse(["userInfo" => $userInfoRepo->findOneBy(["userId" => $user->getId()]), "sessionId" => $session->getSessionId()], 200, []);
         } else {
-            return new JsonResponse(["Error" => "Wrong password"], 401, []);
+            return new JsonResponse(["Error" => "Wrong password"], 400, []);
+        }
+    }
+
+    #[Route('/api/auth/verifySessionId', name: 'app_auth_verify_sessionId', methods: ['POST'])]
+    public function verifySessionId(Request $request, SessionRepository $sessionRepo, UserInfoRepository $userInfoRepo)
+    {
+        $data = $request->headers->get('sessionId');
+        $sessionEntity = $sessionRepo->findOneBy(["sessionId" => $data]);
+
+        if ($sessionEntity != null) {
+            return new JsonResponse(["userInfo" => $userInfoRepo->findOneBy(["userId" => $sessionEntity->getUserId()])], 202, []);
+        } else {
+            return new JsonResponse(["msg" => "Verify failed!"], 406, []);
         }
     }
 }
