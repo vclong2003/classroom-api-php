@@ -34,7 +34,6 @@ class User implements \JsonSerializable
 
     public function setEmail(string $email): self
     {
-
         $this->email = $email;
 
         return $this;
