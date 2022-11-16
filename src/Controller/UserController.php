@@ -15,28 +15,26 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends AbstractController
 {
-
-
     #[Route('/api/user', name: 'app_user_getAll', methods: ['GET'])]
     public function getAllUser(UserInfoRepository $userInfoRepo)
     {
         $data = $userInfoRepo->findAll();
         return new JsonResponse($data, 200, []);
     }
-    #[Route('/api/user/getRole', name: 'app_user_getRow', methods: ['POST'])]
+    #[Route('/api/user/role', name: 'app_user_getRow', methods: ['POST'])]
     public function test(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
     {
-        $data = $request->headers->get('sessionId');
-        $userId = $this->findUserId($data, $sessionRepo, $userRepo);
+
+        $userId = findUserId($request, $sessionRepo, $userRepo);
         $user = $userRepo->findOneBy(["id" => $userId]);
 
         return new JsonResponse(["role" => $user->getRole()], 202, []);
     }
 
-    public function findUserId($sessionId, SessionRepository $sessionRepo, UserRepository $userRepo): int
-    {
-        $session = $sessionRepo->findOneBy(["sessionId" => $sessionId]);
-        $userId = $session->getUserId();
-        return $userId;
-    }
+    // public function findUserId($sessionId, SessionRepository $sessionRepo, UserRepository $userRepo): int
+    // {
+    //     $session = $sessionRepo->findOneBy(["sessionId" => $sessionId]);
+    //     $userId = $session->getUserId();
+    //     return $userId;
+    // }
 }
