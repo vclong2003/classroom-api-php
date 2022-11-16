@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Classroom;
 use App\Repository\ClassroomRepository;
 use App\Repository\SessionRepository;
+use App\Repository\UserInfoRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,12 +15,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ClassroomController extends AbstractController
 {
+    //add classroom, takes "name" param
     #[Route('/api/classroom', name: 'app_classroom_create', methods: ['POST'])]
     public function addClassroom(UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo): Response
     {
         $data = json_decode($request->getContent(), true); //convert data to associative array
         $userId = findUserId($request, $sessionRepo);
-        $role = $userRepo->findOneBy(["userId" => $userId])->getRole();
+        $role = $userRepo->findOneBy(["id" => $userId])->getRole();
 
         if ($role == "teacher") {
             $classroom = new Classroom();
@@ -27,24 +29,29 @@ class ClassroomController extends AbstractController
             $classroom->setName($data['name']);
             $classroom->setStartDate(time());
             $classroom->setStudentCount(0);
+
+            $classroomRepo->save($classroom, true);
 
             return new JsonResponse(["msg" => "Created"], 201, []);
         }
     }
 
     #[Route('/api/classroom', name: 'app_classroom_get', methods: ['GET'])]
-    public function getClassroom(UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo): Response
+    public function getClassroom(UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo, UserInfoRepository $userInfoRepo): Response
     {
-        $data = json_decode($request->getContent(), true); //convert data to associative array
         $userId = findUserId($request, $sessionRepo);
-        $role = $userRepo->findOneBy(["userId" => $userId])->getRole();
+        $user = $userRepo->findOneBy(["userId" => $userId]);
+        $role = $user->getRole();
 
         if ($role == "teacher") {
-            $classroom = new Classroom();
-            $classroom->setTeacherId($userId);
-            $classroom->setName($data['name']);
-            $classroom->setStartDate(time());
-            $classroom->setStudentCount(0);
+            $classrooms = $classroomRepo->findBy(["teacherId" => $user->getId()]);
+            $dataArray = array();
+            foreach ($classrooms as $class) {
+                $classArray = $class->jsonSerialize();
+                $classArray["teacherName"] = $userInfoRepo->findOneBy(["userId" => $class->getTeacherId()])->getName();
+                $classArray["teacherImageUrl"] = $userInfoRepo->findOneBy(["userId" => $class->getTeacherId()])->getImageUrl();
+                array_push($dataArray, $classArray);
+            }
 
             return new JsonResponse(["msg" => "Created"], 201, []);
         }

@@ -6,7 +6,7 @@ use App\Repository\SessionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SessionRepository::class)]
-class Session
+class Session implements \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -61,5 +61,14 @@ class Session
         $this->expire = $expire;
 
         return $this;
+    }
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->getId(),
+            "userId" => $this->getUserId(),
+            "sessionId" => $this->getSessionId(),
+            "expire" => $this->getExpire(),
+        ];
     }
 }

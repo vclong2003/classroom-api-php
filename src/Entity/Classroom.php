@@ -6,7 +6,7 @@ use App\Repository\ClassroomRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ClassroomRepository::class)]
-class Classroom
+class Classroom implements \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -76,5 +76,15 @@ class Classroom
         $this->studentCount = $studentCount;
 
         return $this;
+    }
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->getId(),
+            "teacherId" => $this->getTeacherId(),
+            "name" => $this->getName(),
+            "startDate" => $this->getStartDate(),
+            "studentCount" => $this->getStudentCount()
+        ];
     }
 }

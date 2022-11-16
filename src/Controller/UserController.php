@@ -19,9 +19,18 @@ class UserController extends AbstractController
     public function getAllUser(UserInfoRepository $userInfoRepo)
     {
         $data = $userInfoRepo->findAll();
-        return new JsonResponse($data, 200, []);
+        $arr = array();
+        foreach ($data as $item) {
+            $itemFields = $item->jsonSerialize();
+            $itemFields["test"] = "Test";
+            array_push($arr, $itemFields);
+        }
+
+
+
+        return new JsonResponse($arr, 200, []);
     }
-    #[Route('/api/user/role', name: 'app_user_getRow', methods: ['POST'])]
+    #[Route('/api/user/role', name: 'app_user_getRow', methods: ['GET'])]
     public function test(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
     {
 
@@ -30,11 +39,4 @@ class UserController extends AbstractController
 
         return new JsonResponse(["role" => $user->getRole()], 202, []);
     }
-
-    // public function findUserId($sessionId, SessionRepository $sessionRepo, UserRepository $userRepo): int
-    // {
-    //     $session = $sessionRepo->findOneBy(["sessionId" => $sessionId]);
-    //     $userId = $session->getUserId();
-    //     return $userId;
-    // }
 }
