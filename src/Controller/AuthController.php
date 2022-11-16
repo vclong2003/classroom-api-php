@@ -17,21 +17,15 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class AuthController extends AbstractController
 {
-    #[Route('/api/auth', name: 'app_auth_getUsers', methods: ['GET'])]
-    public function getAllAccounts(UserRepository $userRepo)
-    {
-        $data = $userRepo->findAll();
-        return new JsonResponse($data, 200, []);
-    }
-
     #[Route('/api/auth/register', name: 'app_auth_register', methods: ['POST'])]
     public function register(UserRepository $userRepo, Request $request, UserInfoRepository $userInfoRepo, ValidatorInterface $validator)
     {
-        $data = json_decode($request->getContent(), true); //convert data to associative array
+        $data = json_decode($request->getContent(), true);                  //convert data to associative array
 
         $user = new User();
         $user->setEmail($data['email']);
         $user->setPassword(password_hash($data['password'], PASSWORD_DEFAULT, []));
+        $user->setRole('student');                                           //default role: student
 
         $addedId = $userRepo->save($user, true);
 
@@ -63,7 +57,7 @@ class AuthController extends AbstractController
         }
     }
 
-    #[Route('/api/auth/verifySessionId', name: 'app_auth_verify_sessionId', methods: ['POST'])]
+    #[Route('/api/auth', name: 'app_auth_verify_sessionId', methods: ['HEAD'])]
     public function verifySessionId(Request $request, SessionRepository $sessionRepo, UserInfoRepository $userInfoRepo)
     {
         $data = $request->headers->get('sessionId');
@@ -75,5 +69,7 @@ class AuthController extends AbstractController
             return new JsonResponse(["msg" => "Verify failed!"], 406, []);
         }
     }
+
+
     // test github (long)
 }
