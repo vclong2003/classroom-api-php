@@ -40,7 +40,7 @@ class ClassroomController extends AbstractController
     public function getClassroom(UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo, UserInfoRepository $userInfoRepo): Response
     {
         $userId = findUserId($request, $sessionRepo);
-        $user = $userRepo->findOneBy(["userId" => $userId]);
+        $user = $userRepo->findOneBy(["id" => $userId]);
         $role = $user->getRole();
 
         if ($role == "teacher") {
@@ -53,7 +53,7 @@ class ClassroomController extends AbstractController
                 array_push($dataArray, $classArray);
             }
 
-            return new JsonResponse(["msg" => "Created"], 201, []);
+            return new JsonResponse($dataArray, 200, []);
         }
     }
 }
