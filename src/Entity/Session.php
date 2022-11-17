@@ -19,8 +19,8 @@ class Session implements \JsonSerializable
     #[ORM\Column]
     private ?int $userId = null;
 
-    #[ORM\Column]
-    private ?int $expire = null;
+    #[ORM\Column(length: 50)]
+    private ?string $expire = null;
 
     public function getId(): ?int
     {

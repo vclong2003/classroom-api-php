@@ -48,7 +48,7 @@ class AuthController extends AbstractController
             $session = new Session();
             $session->setUserId($user->getId());
             $session->setSessionId(bin2hex(random_bytes(20)));
-            $session->setExpire(time() + 604800);
+            $session->setExpire(date("Y-m-d H:i:s", strtotime(date("Y-m-d H:i:s") . '+ 7 days')));
             $sessionRepo->save($session, true);
 
             return new JsonResponse(["msg" => "Logged in", "sessionId" => $session->getSessionId()], 200, []);
