@@ -63,25 +63,14 @@ class ClassroomController extends AbstractController
 
     // take classId, return class info
     #[Route('/api/classroom/{classId}', name: 'app_classroom_getDetail', methods: ['GET'])]
-    public function getClassroomDetail(UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo, UserInfoRepository $userInfoRepo, $classId): Response
+    public function getClassroomDetail(ClassroomRepository $classroomRepo, UserInfoRepository $userInfoRepo, $classId): Response
     {
-
         $classRoom = $classroomRepo->findOneBy(["id" => $classId]);
         $userInfo = $userInfoRepo->findOneBy(["id" => $classId]);
-        // $classRoomInfo = array();
-        // foreach ($classRoom as $info) {
-        //     $classDetail = $info->jsonSerialize();
-        //     $classDetail["id"] = $classroomRepo->findOneBy(["id" => $info -> getId()])->getId();
-        //     $classDetail["teacherId"] =$classroomRepo->findOneBy(["id" => $info -> getId()])->getTeacherId();
-        //     $classDetail["name"] = $classroomRepo->findOneBy(["id" => $info -> getId()])->getName();
-        //     $classDetail["startDate"] = $classroomRepo->findOneBy(["id" => $info -> getId()])->getStartDate();
-        //     $classDetail["studentDate"] = $classroomRepo->findOneBy(["id" => $info -> getId()])->getStartDate()
-        //     $classArray["teacherName"] = $userInfoRepo->findOneBy(["userId" => $class->getTeacherId()])->getName();
-        //         $classArray["teacherImageUrl"] = $userInfoRepo->findOneBy(["userId" => $class->getTeacherId()])->getImageUrl();
-        //     array_push($classRoomInfo, $classDetail);
-        // }
-        // return new JsonResponse($classRoomInfo, 200, []);
+        $classRoomInfo = $classRoom->jsonSerialize();
+        $classRoomInfo['teacherName'] = $userInfo->getName();
+        $classRoomInfo['teacherImgURL'] = $userInfo->getImageUrl();
 
-        return new JsonResponse(["id" => $classRoom->getId(), "teacherId" => $classRoom->getTeacherId(), "name" => $classRoom->getName(), "startDate" => $classRoom->getStartDate(), "studentCount" => $classRoom->getStudentCount(), "teacherName" => $userInfo->getName(), "teacherImgURL" => $userInfo->getImageUrl()], 200, []);
+        return new JsonResponse($classRoomInfo, 200, []);
     }
 }
