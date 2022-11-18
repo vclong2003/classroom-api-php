@@ -63,9 +63,8 @@ class ClassroomController extends AbstractController
 
     // take classId, return class info
     #[Route('/api/classroom/{classId}', name: 'app_classroom_getDetail', methods: ['GET'])]
-    public function getClassroomDetail(UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo, UserInfoRepository $userInfoRepo, $classId): Response
+    public function getClassroomDetail(ClassroomRepository $classroomRepo, UserInfoRepository $userInfoRepo, $classId): Response
     {
-
         $classRoom = $classroomRepo->findOneBy(["id" => $classId]);
         $userInfo = $userInfoRepo->findOneBy(["id" => $classId]);
         $classRoomInfo = $classRoom->jsonSerialize();
