@@ -73,4 +73,19 @@ class ClassroomController extends AbstractController
 
         return new JsonResponse($classRoomInfo, 200, []);
     }
+
+    #[Route('/api/classroom/remove/{classId}', name: 'app_classroom_leave', methods: ['GET'])]
+    public function removeClass(Request $request, ClassroomRepository $classroomRepository, UserRepository $userRepository, SessionRepository $sessionRepository, $classId)
+    {
+        $data = json_decode($request->getContent(), true);
+        $userId = findUserId($request, $sessionRepository);
+        $role = $userRepository->findOneBy(["id" => $userId])->getRole();
+
+        if ($role == "Teacher" || $role == "Admin") {
+            $classRoom = $classroomRepository->findOneBy(["id" => $classId]);
+            $classroomRepository->remove($classRoom);
+            $classroomRepository->save($classRoom, true);
+            return new JsonResponse(["message" => "Delete Successfully"], 200, []);
+        }
+    }
 }
