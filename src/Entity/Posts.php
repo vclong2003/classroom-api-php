@@ -7,7 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PostsRepository::class)]
-class Posts
+class Posts implements \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -122,5 +122,18 @@ class Posts
         $this->dateAdded = $dateAdded;
 
         return $this;
+    }
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->getId(),
+            "userId" => $this->getUserId(),
+            "classId" => $this->getClassId(),
+            "isAssignment" => $this->isIsAssignment(),
+            "content" => $this->getContent(),
+            "commentCount" => $this->getCommentCount(),
+            "submitCount" => $this->getSubmitCount(),
+            "dateAdded" => $this->getDateAdded(),
+        ];
     }
 }

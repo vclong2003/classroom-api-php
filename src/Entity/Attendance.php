@@ -6,7 +6,7 @@ use App\Repository\AttendanceRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AttendanceRepository::class)]
-class Attendance
+class Attendance implements \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -21,6 +21,9 @@ class Attendance
 
     #[ORM\Column(length: 50)]
     private ?string $date = null;
+
+    #[ORM\Column]
+    private ?bool $isAttend = null;
 
     public function getId(): ?int
     {
@@ -61,5 +64,27 @@ class Attendance
         $this->date = $date;
 
         return $this;
+    }
+
+    public function isIsAttend(): ?bool
+    {
+        return $this->isAttend;
+    }
+
+    public function setIsAttend(bool $isAttend): self
+    {
+        $this->isAttend = $isAttend;
+
+        return $this;
+    }
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->getId(),
+            "userId" => $this->getUserId(),
+            "classId" => $this->getClassId(),
+            "isAttend" => $this->isIsAttend(),
+            "date" => $this->getDate()
+        ];
     }
 }

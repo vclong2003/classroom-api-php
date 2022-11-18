@@ -17,6 +17,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class AuthController extends AbstractController
 {
+    //takes: name, email, password
     #[Route('/api/auth/register', name: 'app_auth_register', methods: ['POST'])]
     public function register(UserRepository $userRepo, Request $request, UserInfoRepository $userInfoRepo, ValidatorInterface $validator)
     {
@@ -37,8 +38,9 @@ class AuthController extends AbstractController
         return new JsonResponse(["msg" => "Registered!"], 201, []);
     }
 
+    //takes: email, password; return sessionId when logged in successfully
     #[Route('/api/auth/login', name: 'app_auth_login', methods: ['POST'])]
-    public function login(UserRepository $userRepo, Request $request, UserInfoRepository $userInfoRepo, SessionRepository $sessionRepo)
+    public function login(UserRepository $userRepo, Request $request, SessionRepository $sessionRepo)
     {
         $data = json_decode($request->getContent(), true); //convert data to associative array
         $user = $userRepo->findOneBy(["email" => $data['email']]);
@@ -57,8 +59,9 @@ class AuthController extends AbstractController
         }
     }
 
+    // takes sessionId in headers, return 202 (exsist, not expire) if valid, else return 406
     #[Route('/api/auth', name: 'app_auth_verify_sessionId', methods: ['HEAD'])]
-    public function verifySessionId(Request $request, SessionRepository $sessionRepo, UserInfoRepository $userInfoRepo)
+    public function verifySessionId(Request $request, SessionRepository $sessionRepo)
     {
         $data = $request->headers->get('sessionId');
         $sessionEntity = $sessionRepo->findOneBy(["sessionId" => $data]);

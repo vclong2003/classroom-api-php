@@ -36,8 +36,8 @@ class ClassroomController extends AbstractController
         }
     }
 
-    #[Route('/api/classroom', name: 'app_classroom_get', methods: ['GET'])]
-    public function getClassroom(UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo, UserInfoRepository $userInfoRepo): Response
+    #[Route('/api/classroom/', name: 'app_classroom_get', methods: ['GET'])]
+    public function getClassroom(UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo, UserInfoRepository $userInfoRepo, $classId): Response
     {
         $userId = findUserId($request, $sessionRepo);
         $user = $userRepo->findOneBy(["id" => $userId]);
@@ -55,5 +55,14 @@ class ClassroomController extends AbstractController
 
             return new JsonResponse($dataArray, 200, []);
         }
+    }
+
+    // take classId, return class info
+    #[Route('/api/classroom/{classId}', name: 'app_classroom_getDetail', methods: ['GET'])]
+    public function getClassroomDetail(UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo, UserInfoRepository $userInfoRepo, $classId): Response
+    {
+        $classRoom = $classroomRepo->findOneBy(["id" => $classId]);
+
+        return new JsonResponse(["id" => $classId], 200, []);
     }
 }

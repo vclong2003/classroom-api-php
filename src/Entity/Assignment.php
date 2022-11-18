@@ -6,7 +6,7 @@ use App\Repository\AssignmentRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AssignmentRepository::class)]
-class Assignment
+class Assignment implements \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -76,5 +76,15 @@ class Assignment
         $this->dateAdded = $dateAdded;
 
         return $this;
+    }
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->getId(),
+            "userId" => $this->getUserId(),
+            "postId" => $this->getPostId(),
+            "fileUrl" => $this->getFileUrl(),
+            "dateAdded" => $this->getDateAdded(),
+        ];
     }
 }

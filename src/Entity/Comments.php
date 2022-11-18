@@ -7,7 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CommentsRepository::class)]
-class Comments
+class Comments implements \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -77,5 +77,15 @@ class Comments
         $this->dateAdded = $dateAdded;
 
         return $this;
+    }
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->getId(),
+            "postId" => $this->getPostId(),
+            "userId" => $this->getUserId(),
+            "content" => $this->getContent(),
+            "dateAdded" => $this->getDateAdded()
+        ];
     }
 }
