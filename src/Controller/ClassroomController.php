@@ -24,7 +24,7 @@ class ClassroomController extends AbstractController
             $userId = findUserId($request, $sessionRepo);
             $role = $userRepo->findOneBy(["id" => $userId])->getRole();
 
-            if ($role == "Teacher") {
+            if ($role == "teacher") {
                 $classroom = new Classroom();
                 $classroom->setTeacherId($userId);
                 $classroom->setName($data['name']);
@@ -47,7 +47,7 @@ class ClassroomController extends AbstractController
         $user = $userRepo->findOneBy(["id" => $userId]);
         $role = $user->getRole();
 
-        if ($role == "Teacher") {
+        if ($role == "teacher") {
             $classrooms = $classroomRepo->findBy(["teacherId" => $user->getId()]);
             $dataArray = array();
             foreach ($classrooms as $class) {
@@ -66,10 +66,10 @@ class ClassroomController extends AbstractController
     public function getClassroomDetail(ClassroomRepository $classroomRepo, UserInfoRepository $userInfoRepo, $classId): Response
     {
         $classRoom = $classroomRepo->findOneBy(["id" => $classId]);
-        $userInfo = $userInfoRepo->findOneBy(["id" => $classId]);
+        $teacherInfo = $userInfoRepo->findOneBy(["userId" => $classRoom->getTeacherId()]);
         $classRoomInfo = $classRoom->jsonSerialize();
-        $classRoomInfo['teacherName'] = $userInfo->getName();
-        $classRoomInfo['teacherImgURL'] = $userInfo->getImageUrl();
+        $classRoomInfo['teacherName'] = $teacherInfo->getName();
+        $classRoomInfo['teacherImgURL'] = $teacherInfo->getImageUrl();
 
         return new JsonResponse($classRoomInfo, 200, []);
     }
