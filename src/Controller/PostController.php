@@ -13,6 +13,8 @@ use App\Entity\Posts;
 use App\Entity\Assignment;
 use App\Repository\PostsRepository;
 use App\Repository\UserInfoRepository;
+use phpDocumentor\Reflection\Types\Boolean;
+use Doctrine\ORM\EntityManagerInterface;
 
 class PostController extends AbstractController
 {
@@ -51,7 +53,7 @@ class PostController extends AbstractController
     // }
 
     #[Route('/api/classroom/{classId}/post', name: 'app_post_getDetail', methods: ['GET'])]
-    public function getPostDetail(UserRepository $userRepo, PostsRepository $postRepo, $classId)
+    public function getPost(UserRepository $userRepo, PostsRepository $postRepo, $classId)
     {
         try {
             $posts = $postRepo->findBy(["classId" => $classId]);
@@ -59,5 +61,29 @@ class PostController extends AbstractController
         } catch (\Exception $err) {
             return new JsonResponse(["Error" => $err->getMessage()], 400, []);
         }
+    }
+
+    #[Route('/api/classroom/{classId}/post/change/{postId}', name: 'app_post_getDetail', methods: ['POST'])]
+    public function editPost(Request $request, UserRepository $userRepo, PostsRepository $postRepo, $classId, $postId)
+    {
+        $data = json_decode($request->getContent(), true);
+        $classInfo = $postRepo->findOneBy(["id" => $classId]);
+        $postInfo = $postRepo->findOneBy(["id" => $postId]);
+        $postInfo->setContent($data["content"]);
+        $postRepo->save($postInfo, true);
+        return new JsonResponse(["Message" => "Edit successfully"], 201, []);
+    }
+
+    #[Route('/api/classroom/{classId}/post/change/{postId}', name: 'app_post_delete', methods: ['DELETE'])]
+    public function deletePost(Request $request, UserRepository $userRepo, PostsRepository $postRepo, $classId, $postId, EntityManagerInterface $entityManager)
+    {
+        $data = json_decode($request->getContent(), true);
+        $classInfo = $postRepo->findOneBy(["id" => $classId]);
+        $postInfo = $postRepo->findOneBy(["id" => $postId]);
+        $postRepo->remove($postInfo);
+        $entityManager->flush();
+
+        // $postRepo->save($postInfo, true);
+        return new JsonResponse(["Message" => "Delete successfully"], 201, []);
     }
 }
