@@ -54,7 +54,7 @@ class Classroom implements \JsonSerializable
         return $this;
     }
 
-    public function getStartDate(): ?int
+    public function getStartDate(): ?string
     {
         return $this->startDate;
     }

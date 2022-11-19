@@ -44,6 +44,7 @@ class ClassroomController extends AbstractController
         }
     }
 
+    // GET ALL CLASS
     #[Route('/api/classroom/', name: 'app_classroom_get', methods: ['GET'])]
     public function getClassroom(UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo, UserInfoRepository $userInfoRepo, StudentRepository $studentRepo): Response
     {
@@ -93,6 +94,7 @@ class ClassroomController extends AbstractController
         return new JsonResponse($classRoomInfo, 200, []);
     }
 
+    //JOIN THE CLASS
     #[Route('/api/classroom/{classId}/student', name: 'app_classroom_addStudent', methods: ['POST'])]
     public function addStudent($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo): Response
     {
@@ -109,6 +111,7 @@ class ClassroomController extends AbstractController
         return new JsonResponse(["msg" => "ok"], 200, []);
     }
 
+    //GET STUDENT LIST OF THE CLASS
     #[Route('/api/classroom/{classId}/student', name: 'app_classroom_getStudent', methods: ['GET'])]
     public function getStudent($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo, UserInfoRepository $userInfoRepo): Response
     {
