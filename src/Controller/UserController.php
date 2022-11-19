@@ -26,9 +26,6 @@ class UserController extends AbstractController
             $itemFields["test"] = "Test";
             array_push($arr, $itemFields);
         }
-
-
-
         return new JsonResponse($arr, 200, []);
     }
     #[Route('/api/user/role', name: 'app_user_getRole', methods: ['GET'])]
