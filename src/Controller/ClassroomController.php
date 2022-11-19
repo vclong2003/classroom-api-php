@@ -35,10 +35,10 @@ class ClassroomController extends AbstractController
 
                 $classroomRepo->save($classroom, true);
 
-                return new JsonResponse(["msg" => "Created"], 201, []);
+                return new JsonResponse(["Message" => "Created"], 201, []);
             }
         } catch (\Exception $err) {
-            return new JsonResponse(["msg" => $err->getMessage()], 201, []);
+            return new JsonResponse(["Message" => $err->getMessage()], 201, []);
         }
     }
 
@@ -115,7 +115,7 @@ class ClassroomController extends AbstractController
             $classRoom = $classroomRepository->findOneBy(["id" => $classId]);
             $classroomRepository->remove($classRoom);
             $classroomRepository->save($classRoom, true);
-            return new JsonResponse(["message" => "Delete Successfully"], 200, []);
+            return new JsonResponse(["Message" => "Delete Successfully"], 200, []);
         }
     }
 }
