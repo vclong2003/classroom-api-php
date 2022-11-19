@@ -10,7 +10,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\UserRepository;
 use App\Entity\Posts;
+use App\Entity\Assignment;
 use App\Repository\PostsRepository;
+use App\Repository\UserInfoRepository;
 
 class PostController extends AbstractController
 {
@@ -37,13 +39,25 @@ class PostController extends AbstractController
         }
     }
 
-    #[Route('/api/classroom/{classId}/post', name: 'app_post_getDetail', methods: ['GET'])]
-    public function getPostDetail(PostsRepository $postRepo, $postId): Response
-    {
-        $postInfo = $postRepo->findOneBy(["id" => $postId]);
-        // $teacherInfo = $userInfoRepo->findOneBy(["userId" => $classRoom->getTeacherId()]);
-        $classRoomInfo = $postInfo->jsonSerialize();
+    // #[Route('/api/classroom/{classId}/post/{postId}', name: 'app_post_getDetail', methods: ['GET'])]
+    // public function getPostDetail(PostsRepository $postRepo, $postId, $classId): Response
+    // {
+    //     $classInfo = $postRepo->findOneBy(["id" => $classId]);
+    //     $postInfo = $postRepo->findOneBy(["id" => $postId]);
+    //     // $teacherInfo = $userInfoRepo->findOneBy(["userId" => $classRoom->getTeacherId()]);
+    //     $classRoomInfo = $postInfo->jsonSerialize();
 
-        return new JsonResponse($classRoomInfo, 200, []);
+    //     return new JsonResponse($classRoomInfo, 200, []);
+    // }
+
+    #[Route('/api/classroom/{classId}/post', name: 'app_post_getDetail', methods: ['GET'])]
+    public function getPostDetail(UserRepository $userRepo, PostsRepository $postRepo, $classId)
+    {
+        try {
+            $posts = $postRepo->findBy(["classId" => $classId]);
+            return new JsonResponse($posts, 200, []);
+        } catch (\Exception $err) {
+            return new JsonResponse(["Error" => $err->getMessage()], 400, []);
+        }
     }
 }
