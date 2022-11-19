@@ -133,15 +133,17 @@ class ClassroomController extends AbstractController
         $userId = $authInfo["userId"];
         $role = $authInfo["role"];
 
-        $studentIds = array();
-        $students = $studentRepo->findBy(["classId" => $classId]);
-        foreach ($students as $student) {
-            $studentId = $student->getUserId();
-            array_push($studentIds, ["userId" => $studentId]);
-        }
+        if ($role == "teacher") {
+            $studentList = array();
+            $students = $studentRepo->findBy(["classId" => $classId]);
+            foreach ($students as $student) {
+                $studentId = $student->getUserId();
+                $studentInfo = $userInfoRepo->findOneBy(["userId" => $studentId]);
 
-        $studentInfo = $userInfoRepo->findBy($studentIds);
-        return new JsonResponse($studentInfo, 200, []);
+                array_push($studentList, $studentInfo->jsonSerialize());
+            }
+            return new JsonResponse($studentList, 200, []);
+        }
     }
 
     //REMOVE CLASS
