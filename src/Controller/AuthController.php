@@ -45,9 +45,9 @@ class AuthController extends AbstractController
             $userInfo->setName($data['name']);
             $userInfoRepo->save($userInfo, true);
 
-            return new JsonResponse(["msg" => "Registered!"], 201, []);
+            return new JsonResponse(["Message" => "Registered!"], 201, []);
         } catch (\Exception $err) {
-            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
+            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
         }
     }
 
@@ -66,9 +66,9 @@ class AuthController extends AbstractController
             $session->setExpire(date("Y-m-d H:i:s", strtotime(date("Y-m-d H:i:s") . '+ 7 days')));
             $sessionRepo->save($session, true);
 
-            return new JsonResponse(["msg" => "Logged in", "sessionId" => $session->getSessionId()], 200, []);
+            return new JsonResponse(["Message" => "Logged in", "sessionId" => $session->getSessionId()], 200, []);
         } else {
-            return new JsonResponse(["msg" => "Wrong password"], 400, []);
+            return new JsonResponse(["Message" => "Wrong password"], 400, []);
         }
     }
 
@@ -80,9 +80,9 @@ class AuthController extends AbstractController
         $sessionEntity = $sessionRepo->findOneBy(["sessionId" => $data]);
 
         if ($sessionEntity != null) {
-            return new JsonResponse(["msg" => "Verified!"], 202, []);
+            return new JsonResponse(["Message" => "Verified!"], 202, []);
         } else {
-            return new JsonResponse(["msg" => "Verify failed!"], 406, []);
+            return new JsonResponse(["Message" => "Verify failed!"], 406, []);
         }
     }
 

@@ -53,7 +53,7 @@ class UserController extends AbstractController
                 $user = $userRepository->findOneBy(["id" => $userId]);
                 $user->setRole($data['role']);
                 $userRepository->save($user, true);
-                return new JsonResponse(["message" => "Change Role User Successfully"], 200, []);
+                return new JsonResponse(["Message" => "Change Role User Successfully"], 200, []);
             }
         } catch (\Exception $err) {
             return new JsonResponse(["Message" => $err->getMessage()], 400, []);
@@ -71,7 +71,7 @@ class UserController extends AbstractController
                 $user = $userRepository->findOneBy(["id" => $userId]);
                 $userRepository->remove($user);
                 $userRepository->save($user, true);
-                return new JsonResponse(["message" => "Delete User Successfully"], 200, []);
+                return new JsonResponse(["Message" => "Delete User Successfully"], 200, []);
             }
         } catch (\Exception $err) {
             return new JsonResponse(["Message" => $err->getMessage()], 400, []);
