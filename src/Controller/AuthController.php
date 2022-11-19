@@ -21,21 +21,34 @@ class AuthController extends AbstractController
     #[Route('/api/auth/register', name: 'app_auth_register', methods: ['POST'])]
     public function register(UserRepository $userRepo, Request $request, UserInfoRepository $userInfoRepo, ValidatorInterface $validator)
     {
-        $data = json_decode($request->getContent(), true);                  //convert data to associative array
+        try {
+            $data = json_decode($request->getContent(), true);                  //convert data to associative array
 
-        $user = new User();
-        $user->setEmail($data['email']);
-        $user->setPassword(password_hash($data['password'], PASSWORD_DEFAULT, []));
-        $user->setRole('student');                                           //default role: student
+            $user = new User();
 
-        $addedId = $userRepo->save($user, true);
+            if ($data["name"] == "" || $data["email"] == "" || $data["password"] == "") {
+                return new JsonResponse(["Message" => "Please enter full fields"], 400, []);
+            } else if (strlen($data['password']) < 8) {
+                return new JsonResponse(["Message" => "Password have at least 8 characters"], 400, []);
+            } else if (!str_ends_with($data['email'], "@gmail.com")) {
+                return new JsonResponse(["Message" => "Please enter a valid email address"], 400, []);
+            }
 
-        $userInfo = new UserInfo();
-        $userInfo->setUserId($addedId);
-        $userInfo->setName($data['name']);
-        $userInfoRepo->save($userInfo, true);
+            $user->setEmail($data['email']);
+            $user->setPassword(password_hash($data['password'], PASSWORD_DEFAULT, []));
+            $user->setRole('student');                                           //default role: student
 
-        return new JsonResponse(["msg" => "Registered!"], 201, []);
+            $addedId = $userRepo->save($user, true);
+
+            $userInfo = new UserInfo();
+            $userInfo->setUserId($addedId);
+            $userInfo->setName($data['name']);
+            $userInfoRepo->save($userInfo, true);
+
+            return new JsonResponse(["msg" => "Registered!"], 201, []);
+        } catch (\Exception $err) {
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
+        }
     }
 
     //takes: email, password; return sessionId when logged in successfully
