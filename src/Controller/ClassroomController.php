@@ -105,17 +105,25 @@ class ClassroomController extends AbstractController
         $userId = $authInfo["userId"];
         $role = $authInfo["role"];
 
-        $student = new Student();
-        $student->setClassId($classId);
-        $student->setUserId($userId);
-        $studentRepo->save($student, true);
+        $joinedStudent = $studentRepo->findOneBy(["classId" => $classId, "userId" => $userId]);
+        if ($joinedStudent != null) { // check for student exsistance, return error msg if exsisted
+            return new JsonResponse(["msg" => "already exsisted!"], 409, []);
+        } else {
+            $class = $classroomRepo->findOneBy(["id" => $classId]);
 
-        $class = $classroomRepo->findOneBy(["id" => $classId]);
-        $currentStudentCount = $class->getStudentCount();
-        $class->setStudentCount($currentStudentCount + 1);
-        $classroomRepo->save($class, true);
+            if ($class != null) {
+                $student = new Student();
+                $student->setClassId($classId);
+                $student->setUserId($userId);
+                $studentRepo->save($student, true);
 
-        return new JsonResponse(["msg" => "ok"], 200, []);
+                $currentStudentCount = $class->getStudentCount();
+                $class->setStudentCount($currentStudentCount + 1);
+                $classroomRepo->save($class, true);
+
+                return new JsonResponse(["msg" => "ok"], 200, []);
+            }
+        }
     }
 
     //GET STUDENT LIST OF THE CLASS
