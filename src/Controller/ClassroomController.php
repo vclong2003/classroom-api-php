@@ -96,7 +96,7 @@ class ClassroomController extends AbstractController
         return new JsonResponse($classRoomInfo, 200, []);
     }
 
-    //JOIN THE CLASS
+    //ADD STUDENT
     //takes: classId
     #[Route('/api/classroom/{classId}/student', name: 'app_classroom_addStudent', methods: ['POST'])]
     public function addStudent($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo, ClassroomRepository $classroomRepo): Response
@@ -165,6 +165,35 @@ class ClassroomController extends AbstractController
                 array_push($studentList, $filteredStudentInfo);
             }
             return new JsonResponse($studentList, 200, []);
+        }
+    }
+
+    //REMOVE STUDENT
+    //takes: classId, studentId
+    #[Route('/api/classroom/{classId}/student/{studentId}', name: 'app_classroom_removeStudent', methods: ['DELETE'])]
+    public function removeStudent($classId, $studentId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo, ClassroomRepository $classroomRepo): Response
+    {
+        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+        $userId = $authInfo["userId"];
+        $role = $authInfo["role"];
+
+        $class = $classroomRepo->findOneBy(["id" => $classId]);
+        $joinedStudent = $studentRepo->findOneBy(["classId" => $classId, "userId" => $studentId]);
+
+        if ($joinedStudent == null || $class == null) {
+            return new JsonResponse(["msg" => "student or class not found!"], 404, []);
+        } else {
+            if ($role == "teacher" || $userId == $studentId) {
+                $studentRepo->remove($joinedStudent, true);
+
+                $currentStudentCount = $class->getStudentCount();
+                $class->setStudentCount($currentStudentCount - 1);
+                $classroomRepo->save($class, true);
+
+                return new JsonResponse(["msg" => "deleted!"], 200, []);
+            } else {
+                return new JsonResponse(["msg" => "unauthorized!"], 401, []);
+            }
         }
     }
 
