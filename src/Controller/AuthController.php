@@ -60,7 +60,7 @@ class AuthController extends AbstractController
         
         $data = json_decode($request->getContent(), true); //convert data to associative array
         
-        if ($data["name"] == "" || $data["email"] == "" || $data["password"] == "") {
+        if ($data["email"] == "" || $data["password"] == "") {
             return new JsonResponse(["Message" => "Please enter full fields"], 400, []);
         }
         

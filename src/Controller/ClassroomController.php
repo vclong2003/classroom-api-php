@@ -108,7 +108,6 @@ class ClassroomController extends AbstractController
         $student = new Student();
         $student->setClassId($classId);
         $student->setUserId($userId);
-
         $studentRepo->save($student, true);
 
         $class = $classroomRepo->findOneBy(["id" => $classId]);
