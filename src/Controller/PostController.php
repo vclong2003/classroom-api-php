@@ -14,7 +14,7 @@ use App\Repository\PostsRepository;
 
 class PostController extends AbstractController
 {
-    #[Route('/post/{classId}', name: 'app_post', methods: ['POST'])]
+    #[Route('/api/classroom/{classId}/post', name: 'app_post', methods: ['POST'])]
     public function newPost(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, PostsRepository $postRepo, $classId)
     {
         $data = json_decode($request->getContent(), true); //convert data to associative array
@@ -37,7 +37,7 @@ class PostController extends AbstractController
         }
     }
 
-    #[Route('post/{postId}', name: 'app_post_getDetail', methods: ['GET'])]
+    #[Route('/api/classroom/{classId}/post', name: 'app_post_getDetail', methods: ['GET'])]
     public function getPostDetail(PostsRepository $postRepo, $postId): Response
     {
         $postInfo = $postRepo->findOneBy(["id" => $postId]);

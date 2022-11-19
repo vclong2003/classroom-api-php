@@ -31,7 +31,7 @@ class UserController extends AbstractController
 
         return new JsonResponse($arr, 200, []);
     }
-    #[Route('/api/user/role', name: 'app_user_getRow', methods: ['GET'])]
+    #[Route('/api/user/role', name: 'app_user_getRole', methods: ['GET'])]
     public function test(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
     {
 
