@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\ORM\EntityManagerInterface;
 
 class ClassroomController extends AbstractController
 {
@@ -108,7 +109,7 @@ class ClassroomController extends AbstractController
     }
 
     #[Route('/api/classroom/remove/{classId}', name: 'app_classroom_leave', methods: ['GET'])]
-    public function removeClass(Request $request, ClassroomRepository $classroomRepository, UserRepository $userRepo, SessionRepository $sessionRepo, $classId)
+    public function removeClass(Request $request, ClassroomRepository $classroomRepository, UserRepository $userRepo, SessionRepository $sessionRepo, EntityManagerInterface $entityManager, $classId)
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
         $userId = $authInfo["userId"];
@@ -116,7 +117,8 @@ class ClassroomController extends AbstractController
         if ($role == "teacher" || $role == "admin") {
             $classRoom = $classroomRepository->findOneBy(["id" => $classId]);
             $classroomRepository->remove($classRoom);
-            $classroomRepository->save($classRoom, true);
+            // $classroomRepository->save($classRoom, true);
+            $entityManager->flush();
             return new JsonResponse(["Message" => "Delete Successfully"], 200, []);
         }
     }
