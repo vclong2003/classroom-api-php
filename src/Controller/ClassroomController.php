@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Classroom;
 use App\Entity\Student;
+use App\Entity\UserInfo;
 use App\Repository\ClassroomRepository;
 use App\Repository\SessionRepository;
 use App\Repository\StudentRepository;
@@ -109,19 +110,21 @@ class ClassroomController extends AbstractController
     }
 
     #[Route('/api/classroom/{classId}/student', name: 'app_classroom_getStudent', methods: ['GET'])]
-    public function getStudent($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo): Response
+    public function getStudent($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo, UserInfoRepository $userInfoRepo): Response
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
         $userId = $authInfo["userId"];
         $role = $authInfo["role"];
 
-        $student = new Student();
-        $student->setClassId($classId);
-        $student->setUserId($userId);
+        $studentIds = array();
+        $students = $studentRepo->findBy(["classId" => $classId]);
+        foreach ($students as $student) {
+            $studentId = $student->getUserId();
+            array_push($studentIds, ["userId" => $studentId]);
+        }
 
-        $studentRepo->save($student, true);
-
-        return new JsonResponse(["msg" => "ok"], 200, []);
+        $studentInfo = $userInfoRepo->findBy($studentIds);
+        return new JsonResponse($studentInfo, 200, []);
     }
 
     #[Route('/api/classroom/remove/{classId}', name: 'app_classroom_leave', methods: ['GET'])]
