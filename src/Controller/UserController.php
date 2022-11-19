@@ -35,46 +35,50 @@ class UserController extends AbstractController
     public function test(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
     {
 
-        $userId = findUserId($request, $sessionRepo, $userRepo);
-        $user = $userRepo->findOneBy(["id" => $userId]);
+        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+        $userId = $authInfo["userId"];
+        $role = $authInfo["role"];
 
-        return new JsonResponse(["role" => $user->getRole()], 202, []);
+
+        return new JsonResponse(["role" => $role], 202, []);
     }
 
-    #[Route('/api/user/change/{userId}', name: 'app_user_change_role', methods: ['POST'])]
-    public function editUser(Request $request, UserRepository $userRepository, SessionRepository $sessionRepository, $userId): Response
-    {
-        try {
-            $data = json_decode($request->getContent(), true);
-            $userId = findUserId($request, $sessionRepository);
-            $role = $userRepository->findOneBy(["id" => $userId])->getRole();
+    // #[Route('/api/user/change/{userId}', name: 'app_user_change_role', methods: ['POST'])]
+    // public function editUser(Request $request, UserRepository $userRepo, SessionRepository $sessionRepo, $userId): Response
+    // {
+    //     $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+    //     $userId = $authInfo["userId"];
+    //     $role = $authInfo["role"];
 
-            if ($role == "Admin") {
-                $user = $userRepository->findOneBy(["id" => $userId]);
-                $user->setRole($data['role']);
-                $userRepository->save($user, true);
-                return new JsonResponse(["message" => "Change Role User Successfully"], 200, []);
-            }
-        } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
-        }
-    }
+    //     try {
+    //         $data = json_decode($request->getContent(), true);
 
-    #[Route('/api/user/remove/{userId}', name: 'app_user_remove', methods: ['GET'])]
-    public function deleteUser(Request $request, UserRepository $userRepository, SessionRepository $sessionRepository, $userId): Response
-    {
-        try {
-            $uId = findUserId($request, $sessionRepository);
-            $role = $userRepository->findOneBy(["id" => $uId])->getRole();
+    //         if ($role == "admin") {
+    //             $user = $userRepository->findOneBy(["id" => $userId]);
+    //             $user->setRole($data['role']);
+    //             $userRepository->save($user, true);
+    //             return new JsonResponse(["message" => "Change Role User Successfully"], 200, []);
+    //         }
+    //     } catch (\Exception $err) {
+    //         return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+    //     }
+    // }
 
-            if ($role == "Admin") {
-                $user = $userRepository->findOneBy(["id" => $userId]);
-                $userRepository->remove($user);
-                $userRepository->save($user, true);
-                return new JsonResponse(["message" => "Delete User Successfully"], 200, []);
-            }
-        } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
-        }
-    }
+    // #[Route('/api/user/remove/{userId}', name: 'app_user_remove', methods: ['GET'])]
+    // public function deleteUser(Request $request, UserRepository $userRepository, SessionRepository $sessionRepository, $userId): Response
+    // {
+    //     try {
+    //         $uId = findUserId($request, $sessionRepository);
+    //         $role = $userRepository->findOneBy(["id" => $uId])->getRole();
+
+    //         if ($role == "Admin") {
+    //             $user = $userRepository->findOneBy(["id" => $userId]);
+    //             $userRepository->remove($user);
+    //             $userRepository->save($user, true);
+    //             return new JsonResponse(["message" => "Delete User Successfully"], 200, []);
+    //         }
+    //     } catch (\Exception $err) {
+    //         return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+    //     }
+    // }
 }

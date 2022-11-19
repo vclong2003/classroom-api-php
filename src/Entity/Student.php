@@ -17,7 +17,7 @@ class Student implements \JsonSerializable
     private ?int $classId = null;
 
     #[ORM\Column]
-    private ?int $studentId = null;
+    private ?int $userId = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $note = null;
@@ -39,14 +39,14 @@ class Student implements \JsonSerializable
         return $this;
     }
 
-    public function getStudentId(): ?int
+    public function getUserId(): ?int
     {
-        return $this->studentId;
+        return $this->userId;
     }
 
-    public function setStudentId(int $studentId): self
+    public function setUserId(int $userId): self
     {
-        $this->studentId = $studentId;
+        $this->userId = $userId;
 
         return $this;
     }
@@ -67,7 +67,7 @@ class Student implements \JsonSerializable
         return [
             "id" => $this->getId(),
             "classId" => $this->getClassId(),
-            "studentId" => $this->getStudentId(),
+            "studentId" => $this->getUserId(),
             "note" => $this->getNote()
         ];
     }

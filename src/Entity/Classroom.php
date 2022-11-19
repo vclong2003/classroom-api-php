@@ -19,8 +19,8 @@ class Classroom implements \JsonSerializable
     #[ORM\Column(length: 100)]
     private ?string $name = null;
 
-    #[ORM\Column]
-    private ?int $startDate = null;
+    #[ORM\Column(length: 50)]
+    private ?string $startDate = null;
 
     #[ORM\Column]
     private ?int $studentCount = null;
@@ -59,7 +59,7 @@ class Classroom implements \JsonSerializable
         return $this->startDate;
     }
 
-    public function setStartDate(int $startDate): self
+    public function setStartDate(string $startDate): self
     {
         $this->startDate = $startDate;
 
