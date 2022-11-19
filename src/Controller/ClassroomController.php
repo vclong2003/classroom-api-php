@@ -108,6 +108,22 @@ class ClassroomController extends AbstractController
         return new JsonResponse(["msg" => "ok"], 200, []);
     }
 
+    #[Route('/api/classroom/{classId}/student', name: 'app_classroom_getStudent', methods: ['GET'])]
+    public function getStudent($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo): Response
+    {
+        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+        $userId = $authInfo["userId"];
+        $role = $authInfo["role"];
+
+        $student = new Student();
+        $student->setClassId($classId);
+        $student->setUserId($userId);
+
+        $studentRepo->save($student, true);
+
+        return new JsonResponse(["msg" => "ok"], 200, []);
+    }
+
     #[Route('/api/classroom/remove/{classId}', name: 'app_classroom_leave', methods: ['GET'])]
     public function removeClass(Request $request, ClassroomRepository $classroomRepository, UserRepository $userRepo, SessionRepository $sessionRepo, EntityManagerInterface $entityManager, $classId)
     {
