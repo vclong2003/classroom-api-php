@@ -16,29 +16,29 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class UserController extends AbstractController
 {
-    #[Route('/api/user', name: 'app_user_getAll', methods: ['GET'])]
-    public function getAllUser(UserInfoRepository $userInfoRepo)
+    //GET SINGLE USER
+    #[Route('/api/user/{userId}', name: 'app_user_getSingle', methods: ['GET'])]
+    public function getSingleUser($userId, UserInfoRepository $userInfoRepo, UserRepository $userRepo, Request $request, SessionRepository $sessionRepo): Response
     {
-        $data = $userInfoRepo->findAll();
-        $arr = array();
-        foreach ($data as $item) {
-            $itemFields = $item->jsonSerialize();
-            $itemFields["test"] = "Test";
-            array_push($arr, $itemFields);
-        }
-        return new JsonResponse($arr, 200, []);
-    }
-    #[Route('/api/user/role', name: 'app_user_getRole', methods: ['GET'])]
-    public function test(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
-    {
-
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-        $userId = $authInfo["userId"];
-        $role = $authInfo["role"];
+        $sessionUserId = $authInfo["userId"];
 
+        //Perform authorization
+        if ($userId == $sessionUserId) {
+            $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
 
-        return new JsonResponse(["role" => $role], 202, []);
+            if ($userInfo == null) {
+                return new JsonResponse(["msg" => "user not found!"], 404, []);
+            } else {
+                return new JsonResponse($userInfo, 200, []);
+            }
+        } else {
+            return new JsonResponse(["msg" => "unauthorized!"], 401, []);
+        }
     }
+
+
+
 
     // #[Route('/api/user/change/{userId}', name: 'app_user_change_role', methods: ['POST'])]
     // public function editUser(Request $request, UserRepository $userRepo, SessionRepository $sessionRepo, $userId): Response

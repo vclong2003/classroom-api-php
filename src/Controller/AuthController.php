@@ -57,13 +57,13 @@ class AuthController extends AbstractController
     #[Route('/api/auth/login', name: 'app_auth_login', methods: ['POST'])]
     public function login(UserRepository $userRepo, Request $request, SessionRepository $sessionRepo)
     {
-        
+
         $data = json_decode($request->getContent(), true); //convert data to associative array
-        
+
         if ($data["email"] == "" || $data["password"] == "") {
             return new JsonResponse(["Message" => "Please enter full fields"], 400, []);
         }
-        
+
         $user = $userRepo->findOneBy(["email" => $data['email']]);
         $isPasswordTrue = password_verify($data['password'], $user->getPassword());
 
@@ -93,5 +93,17 @@ class AuthController extends AbstractController
         } else {
             return new JsonResponse(["Message" => "Verify failed!"], 406, []);
         }
+    }
+
+    //GET USER ROLE, using sessionId
+    #[Route('/api/auth/role', name: 'app_auth_getRole', methods: ['GET'])]
+    public function test(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
+    {
+
+        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+        $userId = $authInfo["userId"];
+        $role = $authInfo["role"];
+
+        return new JsonResponse(["role" => $role], 202, []);
     }
 }
