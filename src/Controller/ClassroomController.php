@@ -133,9 +133,10 @@ class ClassroomController extends AbstractController
         $userId = $authInfo["userId"];
         $role = $authInfo["role"];
 
+        $studentList = array();
+        $students = $studentRepo->findBy(["classId" => $classId]);
+
         if ($role == "teacher") {
-            $studentList = array();
-            $students = $studentRepo->findBy(["classId" => $classId]);
             foreach ($students as $student) {
                 $studentId = $student->getUserId();
                 $studentInfo = $userInfoRepo
@@ -149,16 +150,19 @@ class ClassroomController extends AbstractController
                 array_push($studentList, $studentInfo);
             }
             return new JsonResponse($studentList, 200, []);
-        } else if ($role == "student") {
-            $studentList = array();
-            $students = $studentRepo->findBy(["classId" => $classId]);
+        } else if ($role == "student") { //if student performs searching, result will be filtered (private info will be hidden)
             foreach ($students as $student) {
                 $studentId = $student->getUserId();
                 $studentInfo = $userInfoRepo->findOneBy(["userId" => $studentId]);
                 $user = $userRepo->findOneBy(["id" => $studentId]);
-                $filteredStudentInfo = ["name" => $studentInfo->getName(), "name" => $studentInfo->getName()];
 
-                array_push($studentList, $studentInfo->jsonSerialize());
+                $filteredStudentInfo = [
+                    "name" => $studentInfo->getName(),
+                    "imageUrl" => $studentInfo->getImageUrl(),
+                    "email" => $user->getEmail()
+                ];
+
+                array_push($studentList, $filteredStudentInfo);
             }
             return new JsonResponse($studentList, 200, []);
         }
