@@ -112,7 +112,7 @@ class ClassroomController extends AbstractController
 
         $class = $classroomRepo->findOneBy(["id" => $classId]);
         $currentStudentCount = $class->getStudentCount();
-        $class->setStudentCount($currentStudentCount++);
+        $class->setStudentCount($currentStudentCount + 1);
         $classroomRepo->save($class, true);
 
         return new JsonResponse(["msg" => "ok"], 200, []);
