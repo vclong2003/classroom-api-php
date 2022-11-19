@@ -19,6 +19,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class ClassroomController extends AbstractController
 {
+    //CREATE CLASS
     //add classroom, takes "name" param
     #[Route('/api/classroom', name: 'app_classroom_create', methods: ['POST'])]
     public function addClassroom(UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo): Response
@@ -81,6 +82,7 @@ class ClassroomController extends AbstractController
         }
     }
 
+    //GET SINGLE CLASS INFO
     // take classId, return class info
     #[Route('/api/classroom/{classId}', name: 'app_classroom_getDetail', methods: ['GET'])]
     public function getClassroomDetail(ClassroomRepository $classroomRepo, UserInfoRepository $userInfoRepo, $classId): Response
@@ -95,8 +97,9 @@ class ClassroomController extends AbstractController
     }
 
     //JOIN THE CLASS
+    //takes: classId
     #[Route('/api/classroom/{classId}/student', name: 'app_classroom_addStudent', methods: ['POST'])]
-    public function addStudent($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo): Response
+    public function addStudent($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo, ClassroomRepository $classroomRepo): Response
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
         $userId = $authInfo["userId"];
@@ -107,6 +110,11 @@ class ClassroomController extends AbstractController
         $student->setUserId($userId);
 
         $studentRepo->save($student, true);
+
+        $class = $classroomRepo->findOneBy(["id" => $classId]);
+        $currentStudentCount = $class->getStudentCount();
+        $class->setStudentCount($currentStudentCount++);
+        $classroomRepo->save($class, true);
 
         return new JsonResponse(["msg" => "ok"], 200, []);
     }
@@ -130,6 +138,7 @@ class ClassroomController extends AbstractController
         return new JsonResponse($studentInfo, 200, []);
     }
 
+    //REMOVE CLASS
     #[Route('/api/classroom/remove/{classId}', name: 'app_classroom_leave', methods: ['GET'])]
     public function removeClass(Request $request, ClassroomRepository $classroomRepository, UserRepository $userRepo, SessionRepository $sessionRepo, EntityManagerInterface $entityManager, $classId)
     {
