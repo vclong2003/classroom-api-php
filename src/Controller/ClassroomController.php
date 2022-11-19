@@ -110,8 +110,7 @@ class ClassroomController extends AbstractController
             return new JsonResponse(["msg" => "already exsisted!"], 409, []);
         } else {
             $class = $classroomRepo->findOneBy(["id" => $classId]);
-
-            if ($class != null) {
+            if ($class != null) { //check class existance!
                 $student = new Student();
                 $student->setClassId($classId);
                 $student->setUserId($userId);
