@@ -91,8 +91,8 @@ class ClassroomController extends AbstractController
         return new JsonResponse($classRoomInfo, 200, []);
     }
 
-    #[Route('/api/classroom/student/{classId}', name: 'app_classroom_getDetail', methods: ['POST'])]
-    public function addStudent(ClassroomRepository $classroomRepo, UserInfoRepository $userInfoRepo, $classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo): Response
+    #[Route('/api/classroom/{classId}/student', name: 'app_classroom_addStudent', methods: ['POST'])]
+    public function addStudent($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo): Response
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
         $userId = $authInfo["userId"];
@@ -101,6 +101,8 @@ class ClassroomController extends AbstractController
         $student = new Student();
         $student->setClassId($classId);
         $student->setUserId($userId);
+
+        $studentRepo->save($student, true);
 
         return new JsonResponse(["msg" => "ok"], 200, []);
     }
