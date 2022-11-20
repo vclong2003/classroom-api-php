@@ -19,6 +19,35 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class PostController extends AbstractController
 {
+    //ADD POST
+    // take: classId
+    #[Route('/api/classroom/{classId}/post', name: 'app_post_getDetail', methods: ['GET'])]
+    public function getPost(UserRepository $userRepo, PostsRepository $postRepo, $classId, Request $request, SessionRepository $sessionRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo)
+    {
+        try {
+            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $userId = $authInfo["userId"];
+            $class = $classRepo->findOneBy(["id" => $classId]);
+
+            if ($class == null) {
+                return new JsonResponse(["Message" => "not found"], 404, []);
+            } else {
+                $student = $studentRepo->findOneBy(["userId" => $userId, "classId" => $classId]);
+                $teacherId = $class->getTeacherId();
+
+                // if user is teacher or student of the class return result. Else, return unauth respone 
+                if ($student != null || $teacherId == $userId) {
+                    $posts = $postRepo->findAll(["classId" => $classId]);
+                    return new JsonResponse($posts, 200, []);
+                } else {
+                    return new JsonResponse(["Message" => "unauthorized!"], 401, []);
+                }
+            }
+        } catch (\Exception $err) {
+            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+        }
+    }
+
     // Add a new Post
     // Take classId, check classId
     // Take user role through session
@@ -82,35 +111,7 @@ class PostController extends AbstractController
     //     return new JsonResponse($classRoomInfo, 200, []);
     // }
 
-    // take classId
-    //Check if class exist using classId
-    // return all the post belongs to that classId
-    #[Route('/api/classroom/{classId}/post', name: 'app_post_getDetail', methods: ['GET'])]
-    public function getPost(UserRepository $userRepo, PostsRepository $postRepo, $classId, Request $request, SessionRepository $sessionRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo)
-    {
-        try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-            $userId = $authInfo["userId"];
-            $class = $classRepo->findOneBy(["id" => $classId]);
 
-            if ($class == null) {
-                return new JsonResponse(["Message" => "not found"], 404, []);
-            } else {
-                $student = $studentRepo->findOneBy(["userId" => $userId, "classId" => $classId]);
-                $teacherId = $class->getTeacherId();
-
-                // if user is teacher or student of the class return result. Else, return unauth respone 
-                if ($student != null || $teacherId == $userId) {
-                    $posts = $postRepo->findAll(["classId" => $classId]);
-                    return new JsonResponse($posts, 200, []);
-                } else {
-                    return new JsonResponse(["Message" => "unauthorized!"], 401, []);
-                }
-            }
-        } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
-        }
-    }
 
     // take classId and postId, take the new content
     // a statement
