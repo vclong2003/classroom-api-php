@@ -11,35 +11,37 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\UserRepository;
 use App\Entity\Posts;
 use App\Entity\Assignment;
+use App\Repository\ClassroomRepository;
 use App\Repository\PostsRepository;
+use App\Repository\StudentRepository;
 use App\Repository\UserInfoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class PostController extends AbstractController
 {
-    //Add post
-    // take classId
-    #[Route('/api/classroom/{classId}/post', name: 'app_post', methods: ['POST'])]
-    public function newPost(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, PostsRepository $postRepo, $classId)
+    //GET ALL POST IN A CLASS
+    // takes: classId
+    #[Route('/api/classroom/{classId}/post', name: 'app_post_get', methods: ['GET'])]
+    public function newPost($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, PostsRepository $postRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo): Response
     {
-        $data = json_decode($request->getContent(), true); //convert data to associative array
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
         $userId = $authInfo["userId"];
-        //take user role
         $role = $authInfo["role"];
 
-        if ($role == "admin") {
-            $post = new Posts();
-            $post->setUserId($userId);
-            $post->setClassId($classId);
-            $post->setIsAssignment($data["isAssignment"]);
-            $post->setContent($data["content"]);
-            $post->setCommentCount(0);
-            $post->setSubmitCount(0);
-            $post->setDateAdded(date("Y-m-d H:i:s"));
+        $class = $classRepo->findOneBy(["id" => $classId]);
+        if ($class == null) {
+            return new JsonResponse(["msg" => "not found"], 404, []);
+        } else {
+            $student = $studentRepo->findOneBy(["userId" => $userId, "classId" => $classId]);
+            $teacherId = $class->getTeacherId();
 
-            $postRepo->save($post, true);
-            return new JsonResponse(["Message" => "A new post has been added"], 201, []);
+            // if user is teacher or student of the class return result. Else, return unauth respone 
+            if ($student != null || $teacherId == $userId) {
+                $posts = $postRepo->findAll(["classId" => $classId]);
+                return new JsonResponse($posts, 200, []);
+            } else {
+                return new JsonResponse(["msg" => "unauthorized!"], 401, []);
+            }
         }
     }
 

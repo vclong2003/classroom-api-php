@@ -27,9 +27,6 @@ class Posts implements \JsonSerializable
     private ?string $content = null;
 
     #[ORM\Column]
-    private ?int $commentCount = null;
-
-    #[ORM\Column]
     private ?int $submitCount = null;
 
     #[ORM\Column(length: 50)]
@@ -88,17 +85,6 @@ class Posts implements \JsonSerializable
         return $this;
     }
 
-    public function getCommentCount(): ?int
-    {
-        return $this->commentCount;
-    }
-
-    public function setCommentCount(int $commentCount): self
-    {
-        $this->commentCount = $commentCount;
-
-        return $this;
-    }
 
     public function getSubmitCount(): ?int
     {
@@ -131,7 +117,6 @@ class Posts implements \JsonSerializable
             "classId" => $this->getClassId(),
             "isAssignment" => $this->isIsAssignment(),
             "content" => $this->getContent(),
-            "commentCount" => $this->getCommentCount(),
             "submitCount" => $this->getSubmitCount(),
             "dateAdded" => $this->getDateAdded(),
         ];
