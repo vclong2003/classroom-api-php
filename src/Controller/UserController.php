@@ -37,6 +37,27 @@ class UserController extends AbstractController
         }
     }
 
+    //UPDATE USER INFO
+    #[Route('/api/user/{userId}', name: 'app_user_update', methods: ['POST'])]
+    public function updateUser($userId, UserInfoRepository $userInfoRepo, UserRepository $userRepo, Request $request, SessionRepository $sessionRepo): Response
+    {
+        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+        $sessionUserId = $authInfo["userId"];
+
+        //Perform authorization
+        if ($userId == $sessionUserId) {
+            $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
+
+            if ($userInfo == null) {
+                return new JsonResponse(["msg" => "user not found!"], 404, []);
+            } else {
+                
+                return new JsonResponse($userInfo, 200, []);
+            }
+        } else {
+            return new JsonResponse(["msg" => "unauthorized!"], 401, []);
+        }
+    }
 
 
 
