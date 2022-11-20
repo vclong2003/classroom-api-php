@@ -7,12 +7,13 @@ use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-function getAuthInfo(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo): array
+function getAuthInfo(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
 {
-
-    try {
-        $sessionId = $request->headers->get('sessionId');
-        $session = $sessionRepo->findOneBy(["sessionId" => $sessionId]);
+    $sessionId = $request->headers->get('sessionId');
+    $session = $sessionRepo->findOneBy(["sessionId" => $sessionId]);
+    if ($session == null) {
+        return null;
+    } else {
         $userId = $session->getUserId();
 
         $user = $userRepo->findOneBy(["id" => $userId]);
@@ -20,7 +21,5 @@ function getAuthInfo(Request $request, SessionRepository $sessionRepo, UserRepos
 
         $dataArray = ["userId" => $userId, "role" => strtolower($role)];
         return $dataArray;
-    } catch (\Exception $err) {
-        return new JsonResponse(["msg" => $err->getMessage()], 401, []);
     }
 }

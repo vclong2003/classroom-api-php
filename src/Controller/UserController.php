@@ -17,71 +17,49 @@ use Doctrine\ORM\EntityManagerInterface;
 class UserController extends AbstractController
 {
     //GET SINGLE USER
-    #[Route('/api/user/{userId}', name: 'app_user_getSingle', methods: ['GET'])]
-    public function getSingleUser($userId, UserInfoRepository $userInfoRepo, UserRepository $userRepo, Request $request, SessionRepository $sessionRepo): Response
+    #[Route('/api/user', name: 'app_user_getSingle', methods: ['GET'])]
+    public function getSingleUser(UserInfoRepository $userInfoRepo, UserRepository $userRepo, Request $request, SessionRepository $sessionRepo): Response
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-        $sessionUserId = $authInfo["userId"];
+        $userId = $authInfo["userId"];
 
-        //Perform authorization
-        if ($userId == $sessionUserId) {
-            $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
-
-            if ($userInfo == null) {
-                return new JsonResponse(["msg" => "user not found!"], 404, []);
-            } else {
-                return new JsonResponse($userInfo, 200, []);
-            }
+        $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
+        if ($userInfo == null) {
+            return new JsonResponse(["msg" => "user not found!"], 404, []);
         } else {
-            return new JsonResponse(["msg" => "unauthorized!"], 401, []);
+            return new JsonResponse($userInfo, 200, []);
         }
     }
 
     //UPDATE USER INFO
-    #[Route('/api/user/{userId}', name: 'app_user_update', methods: ['POST'])]
+    //body params: name, age, phoneNumber, address, imageUrl
+    #[Route('/api/user', name: 'app_user_update', methods: ['POST'])]
     public function updateUser($userId, UserInfoRepository $userInfoRepo, UserRepository $userRepo, Request $request, SessionRepository $sessionRepo): Response
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
         $sessionUserId = $authInfo["userId"];
 
-        //Perform authorization
-        if ($userId == $sessionUserId) {
-            $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
 
-            if ($userInfo == null) {
-                return new JsonResponse(["msg" => "user not found!"], 404, []);
-            } else {
-                
-                return new JsonResponse($userInfo, 200, []);
-            }
+        $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
+
+        if ($userInfo == null) {
+            return new JsonResponse(["msg" => "user not found!"], 404, []);
         } else {
-            return new JsonResponse(["msg" => "unauthorized!"], 401, []);
+            $data = json_decode($request->getContent(), true); //convert data to associative array
+
+            $userInfo->setName($data["name"]);
+            $userInfo->setAge($data["age"]);
+            $userInfo->setPhoneNumber($data["phoneNumber"]);
+            $userInfo->setAddress($data["address"]);
+            $userInfo->setImageUrl("imageUrl");
+
+            $userInfoRepo->save($userInfo, true);
+
+            return new JsonResponse($userInfo, 200, []);
         }
     }
 
-
-
-    // #[Route('/api/user/change/{userId}', name: 'app_user_change_role', methods: ['POST'])]
-    // public function editUser(Request $request, UserRepository $userRepo, SessionRepository $sessionRepo, $userId): Response
-    // {
-    //     $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-    //     $userId = $authInfo["userId"];
-    //     $role = $authInfo["role"];
-
-    //     try {
-    //         $data = json_decode($request->getContent(), true);
-
-    //         if ($role == "admin") {
-    //             $user = $userRepository->findOneBy(["id" => $userId]);
-    //             $user->setRole($data['role']);
-    //             $userRepository->save($user, true);
-    //             return new JsonResponse(["Message" => "Change Role User Successfully"], 200, []);
-    //         }
-    //     } catch (\Exception $err) {
-    //         return new JsonResponse(["Message" => $err->getMessage()], 400, []);
-    //     }
-    // }
-
+    // BELOW FUNCTION WILL BE MOVED TO ADMIN CONTROLLER
     // #[Route('/api/user/remove/{userId}', name: 'app_user_remove', methods: ['GET'])]
     // public function deleteUser(Request $request, UserRepository $userRepository, SessionRepository $sessionRepository, $userId): Response
     // {
