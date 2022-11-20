@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Repository\UserInfoRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\DBAL\Types\Types;
 
 #[ORM\Entity(repositoryClass: UserInfoRepository::class)]
 class UserInfo implements \JsonSerializable
@@ -20,8 +19,8 @@ class UserInfo implements \JsonSerializable
     #[ORM\Column(length: 50)]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $birthday = null;
+    #[ORM\Column(length: 5, nullable: true)]
+    private ?string $age = null;
 
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $phoneNumber = null;
@@ -61,25 +60,14 @@ class UserInfo implements \JsonSerializable
         return $this;
     }
 
-    // public function getAge(): ?string
-    // {
-    //     return $this->age;
-    // }
-
-    // public function setAge(?string $age): self
-    // {
-    //     $this->age = $age;
-
-    //     return $this;
-    // }
-    public function getBirthday(): ?\DateTimeInterface
+    public function getAge(): ?string
     {
-        return $this->birthday;
+        return $this->age;
     }
 
-    public function setBirthday(\DateTimeInterface $birthday): self
+    public function setAge(?string $age): self
     {
-        $this->birthday = $birthday;
+        $this->age = $age;
 
         return $this;
     }
@@ -125,7 +113,7 @@ class UserInfo implements \JsonSerializable
             "id" => $this->getId(),
             "userId" => $this->getUserId(),
             "name" => $this->getName(),
-            "age" => $this->getBirthday(),
+            "age" => $this->getAge(),
             "phoneNumber" => $this->getPhoneNumber(),
             "address" => $this->getAddress(),
             "imageUrl" => $this->getImageUrl(),

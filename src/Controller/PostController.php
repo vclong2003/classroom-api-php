@@ -85,9 +85,10 @@ class PostController extends AbstractController
         }
     }
 
-    // take classId and postId, take the new content
-    // a statement
-    #[Route('/api/classroom/{classId}/post/{postId}', name: 'app_post_getDetail', methods: ['POST'])]
+    // UPDATE POST
+    // takes: classId, postId
+    // body params: 
+    #[Route('/api/classroom/{classId}/post/{postId}', name: 'app_post_update', methods: ['POST'])]
     public function editPost(Request $request, UserRepository $userRepo, PostsRepository $postRepo, $classId, $postId, SessionRepository $sessionRepo)
     {
         try {
