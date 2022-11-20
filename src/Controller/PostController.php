@@ -19,9 +19,9 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class PostController extends AbstractController
 {
-    //ADD POST
+    //GET POST
     // take: classId
-    #[Route('/api/classroom/{classId}/post', name: 'app_post_getDetail', methods: ['GET'])]
+    #[Route('/api/classroom/{classId}/post', name: 'app_post_get', methods: ['GET'])]
     public function getPost(UserRepository $userRepo, PostsRepository $postRepo, $classId, Request $request, SessionRepository $sessionRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo)
     {
         try {
@@ -30,7 +30,7 @@ class PostController extends AbstractController
             $class = $classRepo->findOneBy(["id" => $classId]);
 
             if ($class == null) {
-                return new JsonResponse(["Message" => "not found"], 404, []);
+                return new JsonResponse(["msg" => "not found"], 404, []);
             } else {
                 $student = $studentRepo->findOneBy(["userId" => $userId, "classId" => $classId]);
                 $teacherId = $class->getTeacherId();
@@ -40,82 +40,54 @@ class PostController extends AbstractController
                     $posts = $postRepo->findAll(["classId" => $classId]);
                     return new JsonResponse($posts, 200, []);
                 } else {
-                    return new JsonResponse(["Message" => "unauthorized!"], 401, []);
+                    return new JsonResponse(["msg" => "unauthorized!"], 401, []);
                 }
             }
         } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
     }
 
-    // Add a new Post
-    // Take classId, check classId
-    // Take user role through session
-    // only admin and teacher can add a new post
-    #[Route('/api/classroom/{classId}/post', name: 'app_post_get', methods: ['POST'])]
+    // ADD POST
+    // takes: classId
+    #[Route('/api/classroom/{classId}/post', name: 'app_post_add', methods: ['POST'])]
     public function newPost($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, PostsRepository $postRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo): Response
     {
-        // $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-        // $userId = $authInfo["userId"];
+        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+        $userId = $authInfo["userId"];
+        $role = $authInfo["role"];
 
-        // $class = $classRepo->findOneBy(["id" => $classId]);
-        // if ($class == null) {
-        //     return new JsonResponse(["msg" => "not found"], 404, []);
-        // } else {
-        //     $student = $studentRepo->findOneBy(["userId" => $userId, "classId" => $classId]);
-        //     $teacherId = $class->getTeacherId();
-
-        //     // if user is teacher or student of the class return result. Else, return unauth respone 
-        //     if ($student != null || $teacherId == $userId) {
-        //         $posts = $postRepo->findAll(["classId" => $classId]);
-        //         return new JsonResponse($posts, 200, []);
-        //     } else {
-        //         return new JsonResponse(["msg" => "unauthorized!"], 401, []);
-        //     }
-        // }
         try {
             $data = json_decode($request->getContent(), true); //convert data to associative array
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-            $userId = $authInfo["userId"];
+
             $class = $classRepo->findOneBy(["id" => $classId]);
-            //take user role
-            $role = $authInfo["role"];
 
-            if ($role == "admin" || $role == "teacher") {
-                $post = new Posts();
-                $post->setUserId($userId);
-                $post->setClassId($classId);
-                $post->setIsAssignment($data["isAssignment"]);
-                $post->setContent($data["content"]);
-                $post->setSubmitCount(0);
-                $post->setDateAdded(date("Y-m-d H:i:s"));
+            if ($class == null) {
+                return new JsonResponse(["msg" => "Class not found"], 404, []);
+            } else {
+                if ($role == "admin" || $role == "teacher") {
+                    $post = new Posts();
+                    $post->setUserId($userId);
+                    $post->setClassId($classId);
+                    $post->setIsAssignment($data["isAssignment"]);
+                    $post->setContent($data["content"]);
+                    $post->setSubmitCount(0);
+                    $post->setDateAdded(date("Y-m-d H:i:s"));
 
-                $postRepo->save($post, true);
-                return new JsonResponse(["Message" => "A new post has been added"], 201, []);
-            } else if ($class == null) {
-                return new JsonResponse(["Message" => "Class not found"], 404, []);
+                    $postRepo->save($post, true);
+                    return new JsonResponse(["msg" => "A new post has been added"], 201, []);
+                } else {
+                    return new JsonResponse(["msg" => "unauthorized!"], 401, []);
+                }
             }
         } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
     }
-
-    // #[Route('/api/classroom/{classId}/post/{postId}', name: 'app_post_getDetail', methods: ['GET'])]
-    // public function getPostDetail(PostsRepository $postRepo, $postId, $classId): Response
-    // {
-    //     $classInfo = $postRepo->findOneBy(["id" => $classId]);
-    //     $postInfo = $postRepo->findOneBy(["id" => $postId]);
-    //     // $teacherInfo = $userInfoRepo->findOneBy(["userId" => $classRoom->getTeacherId()]);
-    //     $classRoomInfo = $postInfo->jsonSerialize();
-
-    //     return new JsonResponse($classRoomInfo, 200, []);
-    // }
-
-
 
     // take classId and postId, take the new content
     // a statement
-    #[Route('/api/classroom/{classId}/post/change/{postId}', name: 'app_post_getDetail', methods: ['POST'])]
+    #[Route('/api/classroom/{classId}/post/{postId}', name: 'app_post_getDetail', methods: ['POST'])]
     public function editPost(Request $request, UserRepository $userRepo, PostsRepository $postRepo, $classId, $postId, SessionRepository $sessionRepo)
     {
         try {
