@@ -61,7 +61,7 @@ class UserController extends AbstractController
             } else {
                 $data = json_decode($request->getContent(), true); //convert data to associative array
                 if ($data["phoneNumber"] != $phone) {
-                    $userInfo->setBirthday(\DateTime::createFromFormat('Y/m/d', $data["birthday"]));
+                    $userInfo->setAge(\DateTime::createFromFormat('Y/m/d', $data["birthday"]));
                     $userInfo->setPhoneNumber($data["phoneNumber"]);
                     $userInfo->setAddress($data["address"]);
                     $userInfo->setImageUrl($data["imageUrl"]);

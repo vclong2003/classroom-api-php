@@ -152,9 +152,7 @@ class ClassroomController extends AbstractController
             if ($role == "teacher") {
                 foreach ($students as $student) {
                     $studentId = $student->getUserId();
-                    $studentInfo = $userInfoRepo
-                        ->findOneBy(["userId" => $studentId])
-                        ->jsonSerialize();
+                    $studentInfo = $userInfoRepo->findOneBy(["userId" => $studentId])->jsonSerialize();
 
                     //find and add email to each student info
                     $user = $userRepo->findOneBy(["id" => $studentId]);
