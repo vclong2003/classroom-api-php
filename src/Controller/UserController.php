@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
+use Error;
 
 class UserController extends AbstractController
 {
@@ -52,23 +53,25 @@ class UserController extends AbstractController
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
             $userId = $authInfo["userId"];
-
             $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
+            $phone = $userInfoRepo->findOneBy(["userId" => $userId])->getPhoneNumber();
 
             if ($userInfo == null) {
-                return new JsonResponse(["msg" => "user not found!"], 404, []);
+                return new JsonResponse(["Message" => "user not found!"], 404, []);
             } else {
                 $data = json_decode($request->getContent(), true); //convert data to associative array
+                if ($data["phoneNumber"] != $phone) {
+                    $userInfo->setBirthday(\DateTime::createFromFormat('Y/m/d', $data["birthday"]));
+                    $userInfo->setPhoneNumber($data["phoneNumber"]);
+                    $userInfo->setAddress($data["address"]);
+                    $userInfo->setImageUrl($data["imageUrl"]);
 
-                $userInfo->setName($data["name"]);
-                $userInfo->setAge($data["age"]);
-                $userInfo->setPhoneNumber($data["phoneNumber"]);
-                $userInfo->setAddress($data["address"]);
-                $userInfo->setImageUrl($data["imageUrl"]);
+                    $userInfoRepo->save($userInfo, true);
 
-                $userInfoRepo->save($userInfo, true);
-
-                return new JsonResponse($userInfo, 200, []);
+                    return new JsonResponse($userInfo, 200, []);
+                } else {
+                    return new JsonResponse(["Message" => "Invalid phone"], 400, []);
+                }
             }
         } catch (\Exception $err) {
             return new JsonResponse(["Message" => $err->getMessage()], 400, []);
