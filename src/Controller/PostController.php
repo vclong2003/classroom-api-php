@@ -10,11 +10,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\UserRepository;
 use App\Entity\Posts;
-use App\Entity\Assignment;
 use App\Repository\ClassroomRepository;
 use App\Repository\PostsRepository;
 use App\Repository\StudentRepository;
-use App\Repository\UserInfoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class PostController extends AbstractController
@@ -52,13 +50,13 @@ class PostController extends AbstractController
     // takes: classId
     // body params: isAssignment, content
     #[Route('/api/classroom/{classId}/post', name: 'app_post_add', methods: ['POST'])]
-    public function newPost($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, PostsRepository $postRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo): Response
+    public function addPost($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, PostsRepository $postRepo, ClassroomRepository $classRepo): Response
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
         $userId = $authInfo["userId"];
         $role = $authInfo["role"];
 
-        if ($role == "admin" || $role == "teacher") {
+        if ($role != "admin" && $role != "teacher") {
             return new JsonResponse(["msg" => "unauthorized!"], 401, []);
         }
 
@@ -96,7 +94,7 @@ class PostController extends AbstractController
         $userId = $authInfo["userId"];
         $role = $authInfo["role"];
 
-        if ($role != "admin" || $role != "teacher") {
+        if ($role != "admin" && $role != "teacher") {
             return new JsonResponse(["msg" => "unauthorized!"], 401, []);
         }
 
@@ -126,13 +124,13 @@ class PostController extends AbstractController
     //DELETE POST
     //takes: classId and postId
     #[Route('/api/classroom/{classId}/post/{postId}', name: 'app_post_delete', methods: ['DELETE'])]
-    public function deletePost(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, PostsRepository $postRepo, $classId, $postId, EntityManagerInterface $entityManager, ClassroomRepository $classRepo)
+    public function deletePost(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, PostsRepository $postRepo, $classId, $postId, ClassroomRepository $classRepo)
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
         $userId = $authInfo["userId"];
         $role = $authInfo["role"];
 
-        if ($role != "admin" || $role != "teacher") {
+        if ($role != "admin" && $role != "teacher") {
             return new JsonResponse(["msg" => "unauthorized!"], 401, []);
         }
 
