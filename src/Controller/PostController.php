@@ -26,7 +26,6 @@ class PostController extends AbstractController
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
         $userId = $authInfo["userId"];
-        $role = $authInfo["role"];
 
         $class = $classRepo->findOneBy(["id" => $classId]);
         if ($class == null) {
