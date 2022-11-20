@@ -32,13 +32,20 @@ class UserController extends AbstractController
     }
 
     //UPDATE USER INFO
-    //body params: name, age, phoneNumber, address, imageUrl
+    /*
+    body params: 
+        name, 
+        age, 
+        phoneNumber, 
+        address, 
+        imageUrl
+    return: updated user info
+    */
     #[Route('/api/user', name: 'app_user_update', methods: ['POST'])]
-    public function updateUser($userId, UserInfoRepository $userInfoRepo, UserRepository $userRepo, Request $request, SessionRepository $sessionRepo): Response
+    public function updateUser(UserInfoRepository $userInfoRepo, UserRepository $userRepo, Request $request, SessionRepository $sessionRepo): Response
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-        $sessionUserId = $authInfo["userId"];
-
+        $userId = $authInfo["userId"];
 
         $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
 
@@ -51,7 +58,7 @@ class UserController extends AbstractController
             $userInfo->setAge($data["age"]);
             $userInfo->setPhoneNumber($data["phoneNumber"]);
             $userInfo->setAddress($data["address"]);
-            $userInfo->setImageUrl("imageUrl");
+            $userInfo->setImageUrl($data["imageUrl"]);
 
             $userInfoRepo->save($userInfo, true);
 
