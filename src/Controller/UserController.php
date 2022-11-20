@@ -20,14 +20,18 @@ class UserController extends AbstractController
     #[Route('/api/user', name: 'app_user_getSingle', methods: ['GET'])]
     public function getSingleUser(UserInfoRepository $userInfoRepo, UserRepository $userRepo, Request $request, SessionRepository $sessionRepo): Response
     {
-        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-        $userId = $authInfo["userId"];
+        try {
+            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $userId = $authInfo["userId"];
 
-        $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
-        if ($userInfo == null) {
-            return new JsonResponse(["msg" => "user not found!"], 404, []);
-        } else {
-            return new JsonResponse($userInfo, 200, []);
+            $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
+            if ($userInfo == null) {
+                return new JsonResponse(["Message" => "user not found!"], 404, []);
+            } else {
+                return new JsonResponse($userInfo, 200, []);
+            }
+        } catch (\Exception $err) {
+            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
         }
     }
 
@@ -41,28 +45,33 @@ class UserController extends AbstractController
         imageUrl
     return: updated user info
     */
+    // Maybe can move this to ADMIN controller
     #[Route('/api/user', name: 'app_user_update', methods: ['POST'])]
     public function updateUser(UserInfoRepository $userInfoRepo, UserRepository $userRepo, Request $request, SessionRepository $sessionRepo): Response
     {
-        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-        $userId = $authInfo["userId"];
+        try {
+            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $userId = $authInfo["userId"];
 
-        $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
+            $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
 
-        if ($userInfo == null) {
-            return new JsonResponse(["msg" => "user not found!"], 404, []);
-        } else {
-            $data = json_decode($request->getContent(), true); //convert data to associative array
+            if ($userInfo == null) {
+                return new JsonResponse(["msg" => "user not found!"], 404, []);
+            } else {
+                $data = json_decode($request->getContent(), true); //convert data to associative array
 
-            $userInfo->setName($data["name"]);
-            $userInfo->setAge($data["age"]);
-            $userInfo->setPhoneNumber($data["phoneNumber"]);
-            $userInfo->setAddress($data["address"]);
-            $userInfo->setImageUrl($data["imageUrl"]);
+                $userInfo->setName($data["name"]);
+                $userInfo->setAge($data["age"]);
+                $userInfo->setPhoneNumber($data["phoneNumber"]);
+                $userInfo->setAddress($data["address"]);
+                $userInfo->setImageUrl($data["imageUrl"]);
 
-            $userInfoRepo->save($userInfo, true);
+                $userInfoRepo->save($userInfo, true);
 
-            return new JsonResponse($userInfo, 200, []);
+                return new JsonResponse($userInfo, 200, []);
+            }
+        } catch (\Exception $err) {
+            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
         }
     }
 

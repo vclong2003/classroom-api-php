@@ -19,8 +19,10 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class PostController extends AbstractController
 {
-    //GET ALL POST IN A CLASS
-    // takes: classId
+    // Add a new Post
+    // Take classId, check classId
+    // Take user role through session
+    // only admin and teacher can add a new post
     #[Route('/api/classroom/{classId}/post', name: 'app_post_get', methods: ['POST'])]
     public function newPost($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, PostsRepository $postRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo): Response
     {
@@ -81,57 +83,88 @@ class PostController extends AbstractController
     // }
 
     // take classId
+    //Check if class exist using classId
     // return all the post belongs to that classId
     #[Route('/api/classroom/{classId}/post', name: 'app_post_getDetail', methods: ['GET'])]
     public function getPost(UserRepository $userRepo, PostsRepository $postRepo, $classId, Request $request, SessionRepository $sessionRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo)
     {
+        try {
+            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $userId = $authInfo["userId"];
+            $class = $classRepo->findOneBy(["id" => $classId]);
 
-        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-        $userId = $authInfo["userId"];
-        $class = $classRepo->findOneBy(["id" => $classId]);
-
-        if ($class == null) {
-            return new JsonResponse(["msg" => "not found"], 404, []);
-        } else {
-            $student = $studentRepo->findOneBy(["userId" => $userId, "classId" => $classId]);
-            $teacherId = $class->getTeacherId();
-
-            // if user is teacher or student of the class return result. Else, return unauth respone 
-            if ($student != null || $teacherId == $userId) {
-                $posts = $postRepo->findAll(["classId" => $classId]);
-                return new JsonResponse($posts, 200, []);
+            if ($class == null) {
+                return new JsonResponse(["Message" => "not found"], 404, []);
             } else {
-                return new JsonResponse(["msg" => "unauthorized!"], 401, []);
+                $student = $studentRepo->findOneBy(["userId" => $userId, "classId" => $classId]);
+                $teacherId = $class->getTeacherId();
+
+                // if user is teacher or student of the class return result. Else, return unauth respone 
+                if ($student != null || $teacherId == $userId) {
+                    $posts = $postRepo->findAll(["classId" => $classId]);
+                    return new JsonResponse($posts, 200, []);
+                } else {
+                    return new JsonResponse(["Message" => "unauthorized!"], 401, []);
+                }
             }
+        } catch (\Exception $err) {
+            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
         }
     }
 
     // take classId and postId, take the new content
     // a statement
     #[Route('/api/classroom/{classId}/post/change/{postId}', name: 'app_post_getDetail', methods: ['POST'])]
-    public function editPost(Request $request, UserRepository $userRepo, PostsRepository $postRepo, $classId, $postId)
+    public function editPost(Request $request, UserRepository $userRepo, PostsRepository $postRepo, $classId, $postId, SessionRepository $sessionRepo)
     {
-        $data = json_decode($request->getContent(), true);
-        $classInfo = $postRepo->findOneBy(["id" => $classId]);
-        $postInfo = $postRepo->findOneBy(["id" => $postId]);
-        $postInfo->setContent($data["content"]);
-        $postRepo->save($postInfo, true);
-        return new JsonResponse(["Message" => "Edit successfully"], 201, []);
+        try {
+            $data = json_decode($request->getContent(), true);
+            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $classInfo = $postRepo->findOneBy(["id" => $classId]);
+            $postInfo = $postRepo->findOneBy(["id" => $postId]);
+            $role = $authInfo["role"];
+
+            if ($classInfo == null) {
+                return new JsonResponse(["Message" => "Class Not Found"], 404, []);
+            } else if ($postInfo == null) {
+                return new JsonResponse(["Message" => "Post Not Found"], 404, []);
+            } else if ($role == "teacher" || $role == "admin") {
+                // $postRepo->remove($postInfo);
+                // $postRepo->save($postInfo, true);
+                // return new JsonResponse(["Message" => "Delete successfully"], 201, []);
+                $postInfo->setContent($data["content"]);
+                $postRepo->save($postInfo, true);
+                return new JsonResponse(["Message" => "Edit successfully"], 201, []);
+            }
+        } catch (\Exception $err) {
+            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+        }
     }
 
 
     //take classId and postId, find them in the database and remove the post that belongs to postId
     //return a response 
     #[Route('/api/classroom/{classId}/post/change/{postId}', name: 'app_post_delete', methods: ['DELETE'])]
-    public function deletePost(Request $request, UserRepository $userRepo, PostsRepository $postRepo, $classId, $postId, EntityManagerInterface $entityManager)
+    public function deletePost(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, PostsRepository $postRepo, $classId, $postId, EntityManagerInterface $entityManager, ClassroomRepository $classRepo)
     {
-        $data = json_decode($request->getContent(), true);
-        $classInfo = $postRepo->findOneBy(["id" => $classId]);
-        $postInfo = $postRepo->findOneBy(["id" => $postId]);
-        $postRepo->remove($postInfo);
-        $entityManager->flush();
+        try {
+            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $classInfo = $postRepo->findOneBy(["id" => $classId]);
+            $postInfo = $postRepo->findOneBy(["id" => $postId]);
+            $role = $authInfo["role"];
 
-        // $postRepo->save($postInfo, true);
-        return new JsonResponse(["Message" => "Delete successfully"], 201, []);
+            if ($classInfo == null) {
+                return new JsonResponse(["Message" => "Class Not Found"], 404, []);
+            } else if ($postInfo == null) {
+                return new JsonResponse(["Message" => "Post Not Found"], 404, []);
+            } else if ($role == "teacher" || $role == "admin") {
+                $postRepo->remove($postInfo);
+                $entityManager->flush();
+                // $postRepo->save($postInfo, true);
+                return new JsonResponse(["Message" => "Delete successfully"], 201, []);
+            }
+        } catch (\Exception $err) {
+            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+        }
     }
 }

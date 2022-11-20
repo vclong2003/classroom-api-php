@@ -28,11 +28,11 @@ class AuthController extends AbstractController
             $user = new User();
 
             if ($data["name"] == "" || $data["email"] == "" || $data["password"] == "") {
-                return new JsonResponse(["msg" => "Please enter full fields"], 400, []);
+                return new JsonResponse(["Message" => "Please enter full fields"], 400, []);
             } else if (strlen($data['password']) < 8) {
-                return new JsonResponse(["msg" => "Password have at least 8 characters"], 400, []);
+                return new JsonResponse(["Message" => "Password have at least 8 characters"], 400, []);
             } else if (!str_ends_with($data['email'], "@gmail.com")) {
-                return new JsonResponse(["msg" => "Please enter a valid email address"], 400, []);
+                return new JsonResponse(["Message" => "Please enter a valid email address"], 400, []);
             }
 
             $user->setEmail($data['email']);
@@ -46,9 +46,9 @@ class AuthController extends AbstractController
             $userInfo->setName($data['name']);
             $userInfoRepo->save($userInfo, true);
 
-            return new JsonResponse(["msg" => "Registered!"], 201, []);
+            return new JsonResponse(["Message" => "Registered!"], 201, []);
         } catch (\Exception $err) {
-            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
+            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
         }
     }
 
@@ -57,26 +57,29 @@ class AuthController extends AbstractController
     #[Route('/api/auth/login', name: 'app_auth_login', methods: ['POST'])]
     public function login(UserRepository $userRepo, Request $request, SessionRepository $sessionRepo)
     {
+        try {
+            $data = json_decode($request->getContent(), true); //convert data to associative array
 
-        $data = json_decode($request->getContent(), true); //convert data to associative array
+            if ($data["email"] == "" || $data["password"] == "") {
+                return new JsonResponse(["Message" => "Please enter full fields"], 400, []);
+            }
 
-        if ($data["email"] == "" || $data["password"] == "") {
-            return new JsonResponse(["Message" => "Please enter full fields"], 400, []);
-        }
+            $user = $userRepo->findOneBy(["email" => $data['email']]);
+            $isPasswordTrue = password_verify($data['password'], $user->getPassword());
 
-        $user = $userRepo->findOneBy(["email" => $data['email']]);
-        $isPasswordTrue = password_verify($data['password'], $user->getPassword());
+            if ($isPasswordTrue) {
+                $session = new Session();
+                $session->setUserId($user->getId());
+                $session->setSessionId(bin2hex(random_bytes(20)));
+                $session->setExpire(date("Y-m-d H:i:s", strtotime(date("Y-m-d H:i:s") . '+ 7 days')));
+                $sessionRepo->save($session, true);
 
-        if ($isPasswordTrue) {
-            $session = new Session();
-            $session->setUserId($user->getId());
-            $session->setSessionId(bin2hex(random_bytes(20)));
-            $session->setExpire(date("Y-m-d H:i:s", strtotime(date("Y-m-d H:i:s") . '+ 7 days')));
-            $sessionRepo->save($session, true);
-
-            return new JsonResponse(["sessionId" => $session->getSessionId()], 200, []);
-        } else {
-            return new JsonResponse(["Message" => "Wrong password"], 400, []);
+                return new JsonResponse(["sessionId" => $session->getSessionId()], 200, []);
+            } else {
+                return new JsonResponse(["Message" => "Wrong password"], 400, []);
+            }
+        } catch (\Exception $err) {
+            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
         }
     }
 
@@ -85,13 +88,17 @@ class AuthController extends AbstractController
     #[Route('/api/auth', name: 'app_auth_verify_sessionId', methods: ['HEAD'])]
     public function verifySessionId(Request $request, SessionRepository $sessionRepo)
     {
-        $data = $request->headers->get('sessionId');
-        $sessionEntity = $sessionRepo->findOneBy(["sessionId" => $data]);
+        try {
+            $data = $request->headers->get('sessionId');
+            $sessionEntity = $sessionRepo->findOneBy(["sessionId" => $data]);
 
-        if ($sessionEntity != null) {
-            return new JsonResponse(["Message" => "Verified!"], 202, []);
-        } else {
-            return new JsonResponse(["Message" => "Verify failed!"], 406, []);
+            if ($sessionEntity != null) {
+                return new JsonResponse(["Message" => "Verified!"], 202, []);
+            } else {
+                return new JsonResponse(["Message" => "Verify failed!"], 406, []);
+            }
+        } catch (\Exception $err) {
+            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
         }
     }
 
@@ -99,11 +106,14 @@ class AuthController extends AbstractController
     #[Route('/api/auth/role', name: 'app_auth_getRole', methods: ['GET'])]
     public function test(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
     {
+        try {
+            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $userId = $authInfo["userId"];
+            $role = $authInfo["role"];
 
-        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-        $userId = $authInfo["userId"];
-        $role = $authInfo["role"];
-
-        return new JsonResponse(["role" => $role], 202, []);
+            return new JsonResponse(["role" => $role], 202, []);
+        } catch (\Exception $err) {
+            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+        }
     }
 }
