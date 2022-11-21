@@ -19,9 +19,6 @@ class UserInfo implements \JsonSerializable
     #[ORM\Column(length: 50)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 5, nullable: true)]
-    private ?string $age = null;
-
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $phoneNumber = null;
 
@@ -30,6 +27,9 @@ class UserInfo implements \JsonSerializable
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageUrl = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $dob = null;
 
     public function getId(): ?int
     {
@@ -56,18 +56,6 @@ class UserInfo implements \JsonSerializable
     public function setName(string $name): self
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    public function getAge(): ?string
-    {
-        return $this->age;
-    }
-
-    public function setAge(?string $age): self
-    {
-        $this->age = $age;
 
         return $this;
     }
@@ -107,13 +95,26 @@ class UserInfo implements \JsonSerializable
 
         return $this;
     }
+
+    public function getDob(): ?string
+    {
+        return $this->dob;
+    }
+
+    public function setDob(?string $dob): self
+    {
+        $this->dob = $dob;
+
+        return $this;
+    }
+
     public function jsonSerialize()
     {
         return [
             "id" => $this->getId(),
             "userId" => $this->getUserId(),
             "name" => $this->getName(),
-            "age" => $this->getAge(),
+            "dob" => $this->getDob(),
             "phoneNumber" => $this->getPhoneNumber(),
             "address" => $this->getAddress(),
             "imageUrl" => $this->getImageUrl(),

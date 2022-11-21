@@ -27,26 +27,18 @@ class UserController extends AbstractController
 
             $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
             if ($userInfo == null) {
-                return new JsonResponse(["Message" => "user not found!"], 404, []);
+                return new JsonResponse(["msg" => "user not found!"], 404, []);
             } else {
                 return new JsonResponse($userInfo, 200, []);
             }
         } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
     }
 
     //UPDATE USER INFO
-    /*
-    body params: 
-        name, 
-        age, 
-        phoneNumber, 
-        address, 
-        imageUrl
-    return: updated user info
-    */
-    // Maybe can move this to ADMIN controller
+    // body params: name, dob, phoneNumber, address, imageUrl
+    // return: updated user info
     #[Route('/api/user', name: 'app_user_update', methods: ['POST'])]
     public function updateUser(UserInfoRepository $userInfoRepo, UserRepository $userRepo, Request $request, SessionRepository $sessionRepo): Response
     {
@@ -61,7 +53,7 @@ class UserController extends AbstractController
             } else {
                 $data = json_decode($request->getContent(), true); //convert data to associative array
                 if ($data["phoneNumber"] != $phone) {
-                    $userInfo->setAge(\DateTime::createFromFormat('Y/m/d', $data["birthday"]));
+                    $userInfo->setDob($data["dob"]);
                     $userInfo->setPhoneNumber($data["phoneNumber"]);
                     $userInfo->setAddress($data["address"]);
                     $userInfo->setImageUrl($data["imageUrl"]);
