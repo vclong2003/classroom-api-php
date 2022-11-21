@@ -4,8 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Classroom;
 use App\Entity\Student;
-use App\Entity\Attendance;
-use App\Repository\AttendanceRepository;
 use App\Repository\ClassroomRepository;
 use App\Repository\SessionRepository;
 use App\Repository\StudentRepository;
@@ -154,14 +152,16 @@ class ClassroomController extends AbstractController
                     $studentId = $student->getUserId();
                     $studentInfo = $userInfoRepo->findOneBy(["userId" => $studentId])->jsonSerialize();
 
-                    //join student info
+                    //join student's email
                     $user = $userRepo->findOneBy(["id" => $studentId]);
                     $studentInfo["email"] = $user->getEmail();
+
 
                     array_push($studentList, $studentInfo);
                 }
                 return new JsonResponse($studentList, 200, []);
-            } else if ($role == "student") { //if student performs searching, result will be filtered (private info will be hidden)
+            } else if ($role == "student") {
+                //if student performs searching, result will be filtered (private info will be hidden)
                 foreach ($students as $student) {
                     $studentId = $student->getUserId();
                     $studentInfo = $userInfoRepo->findOneBy(["userId" => $studentId]);
@@ -226,7 +226,6 @@ class ClassroomController extends AbstractController
             if ($role == "teacher" || $role == "admin") {
                 $classRoom = $classroomRepository->findOneBy(["id" => $classId]);
                 $classroomRepository->remove($classRoom);
-                // $classroomRepository->save($classRoom, true);
                 $entityManager->flush();
                 return new JsonResponse(["msg" => "Delete Successfully"], 200, []);
             }
