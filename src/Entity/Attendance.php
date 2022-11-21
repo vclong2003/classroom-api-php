@@ -19,11 +19,11 @@ class Attendance implements \JsonSerializable
     #[ORM\Column]
     private ?int $classId = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $date = null;
-
     #[ORM\Column]
     private ?bool $isAttend = null;
+
+    #[ORM\Column]
+    private ?int $classSessionId = null;
 
     public function getId(): ?int
     {
@@ -54,18 +54,6 @@ class Attendance implements \JsonSerializable
         return $this;
     }
 
-    public function getDate(): ?string
-    {
-        return $this->date;
-    }
-
-    public function setDate(string $date): self
-    {
-        $this->date = $date;
-
-        return $this;
-    }
-
     public function isIsAttend(): ?bool
     {
         return $this->isAttend;
@@ -77,14 +65,26 @@ class Attendance implements \JsonSerializable
 
         return $this;
     }
+
+    public function getClassSessionId(): ?int
+    {
+        return $this->classSessionId;
+    }
+
+    public function setClassSessionId(int $classSessionId): self
+    {
+        $this->classSessionId = $classSessionId;
+
+        return $this;
+    }
     public function jsonSerialize()
     {
         return [
             "id" => $this->getId(),
             "userId" => $this->getUserId(),
             "classId" => $this->getClassId(),
-            "isAttend" => $this->isIsAttend(),
-            "date" => $this->getDate()
+            "classSessionId" => $this->getClassSessionId(),
+            "isAttend" => $this->isIsAttend()
         ];
     }
 }
