@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Classroom;
 use App\Entity\Student;
 use App\Entity\UserInfo;
+use App\Entity\Attendance;
+use App\Repository\AttendanceRepository;
 use App\Repository\ClassroomRepository;
 use App\Repository\SessionRepository;
 use App\Repository\StudentRepository;
@@ -16,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
+use PhpParser\Builder\Class_;
 
 class ClassroomController extends AbstractController
 {
@@ -107,7 +110,7 @@ class ClassroomController extends AbstractController
     //ADD STUDENT
     //takes: classId
     #[Route('/api/classroom/{classId}/student', name: 'app_classroom_addStudent', methods: ['POST'])]
-    public function addStudent($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo, ClassroomRepository $classroomRepo): Response
+    public function addStudent($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo, ClassroomRepository $classroomRepo, AttendanceRepository $attendanceRepo): Response
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
@@ -129,6 +132,12 @@ class ClassroomController extends AbstractController
                     $class->setStudentCount($currentStudentCount + 1);
                     $classroomRepo->save($class, true);
 
+                    $attendance = new Attendance();
+                    $attendance->setUserId($userId);
+                    $attendance->setClassId($classId);
+                    $attendance->setDate(date("Y-m-d H:i:s"));
+                    $attendance->setIsAttend(false);
+                    $attendanceRepo->save($attendance, true);
                     return new JsonResponse(["Message" => "ok"], 200, []);
                 }
             }
@@ -232,6 +241,19 @@ class ClassroomController extends AbstractController
             }
         } catch (\Exception $err) {
             return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+        }
+    }
+
+    #[Route('/api/classroom/{classId}/student/attendance', name: 'app_classroom_getStudent', methods: ['GET'])]
+    public function getAttendanceList(Request $request, ClassroomRepository $classroomRepo, $classId, AttendanceRepository $attendanceRepo)
+    {
+        $class = $classroomRepo->findOneBy(["id" => $classId]);
+        
+        if ($class == null) {
+            return new JsonResponse(["Message" => "Class not found"], 400, []);
+        } else {
+            $studentList = $attendanceRepo->findAll(["classId" => $classId]);
+            return new JsonResponse($studentList, 200, []);
         }
     }
 }

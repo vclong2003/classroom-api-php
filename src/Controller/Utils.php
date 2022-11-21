@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 function getAuthInfo(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
 {
-    try {
+    // try {
         $sessionId = $request->headers->get('sessionId');
         $session = $sessionRepo->findOneBy(["sessionId" => $sessionId]);
         if ($session == null) {
@@ -23,7 +23,7 @@ function getAuthInfo(Request $request, SessionRepository $sessionRepo, UserRepos
             $dataArray = ["userId" => $userId, "role" => strtolower($role)];
             return $dataArray;
         }
-    } catch (\Exception $err) {
-        return $err->getMessage();
-    }
+    // } catch (\Exception $err) {
+    //     return $err->getMessage();
+    // }
 }
