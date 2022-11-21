@@ -39,10 +39,10 @@ class ClassroomController extends AbstractController
 
                 $classroomRepo->save($classroom, true);
 
-                return new JsonResponse(["Message" => "Created"], 201, []);
+                return new JsonResponse(["msg" => "Created"], 201, []);
             }
         } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 401, []);
+            return new JsonResponse(["msg" => $err->getMessage()], 401, []);
         }
     }
 
@@ -83,7 +83,7 @@ class ClassroomController extends AbstractController
                 return new JsonResponse($dataArray, 200, []);
             }
         } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 401, []);
+            return new JsonResponse(["msg" => $err->getMessage()], 401, []);
         }
     }
 
@@ -101,14 +101,14 @@ class ClassroomController extends AbstractController
 
             return new JsonResponse($classRoomInfo, 200, []);
         } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
     }
 
     //ADD STUDENT
     //takes: classId
     #[Route('/api/classroom/{classId}/student', name: 'app_classroom_addStudent', methods: ['POST'])]
-    public function addStudent($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo, ClassroomRepository $classroomRepo, AttendanceRepository $attendanceRepo): Response
+    public function addStudent($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, StudentRepository $studentRepo, ClassroomRepository $classroomRepo): Response
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
@@ -117,7 +117,7 @@ class ClassroomController extends AbstractController
 
             $joinedStudent = $studentRepo->findOneBy(["classId" => $classId, "userId" => $userId]);
             if ($joinedStudent != null) { // check for student exsistance, return error msg if exsisted
-                return new JsonResponse(["Message" => "already existed!"], 409, []);
+                return new JsonResponse(["msg" => "already existed!"], 409, []);
             } else {
                 $class = $classroomRepo->findOneBy(["id" => $classId]);
                 if ($class != null) { //check class existance!
@@ -129,18 +129,11 @@ class ClassroomController extends AbstractController
                     $currentStudentCount = $class->getStudentCount();
                     $class->setStudentCount($currentStudentCount + 1);
                     $classroomRepo->save($class, true);
-
-                    $attendance = new Attendance();
-                    $attendance->setUserId($userId);
-                    $attendance->setClassId($classId);
-                    $attendance->setDate(date("Y-m-d H:i:s"));
-                    $attendance->setIsAttend(false);
-                    $attendanceRepo->save($attendance, true);
-                    return new JsonResponse(["Message" => "ok"], 200, []);
+                    return new JsonResponse(["msg" => "ok"], 200, []);
                 }
             }
         } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
     }
 
@@ -161,7 +154,7 @@ class ClassroomController extends AbstractController
                     $studentId = $student->getUserId();
                     $studentInfo = $userInfoRepo->findOneBy(["userId" => $studentId])->jsonSerialize();
 
-                    //find and add email to each student info
+                    //join student info
                     $user = $userRepo->findOneBy(["id" => $studentId]);
                     $studentInfo["email"] = $user->getEmail();
 
@@ -185,7 +178,7 @@ class ClassroomController extends AbstractController
                 return new JsonResponse($studentList, 200, []);
             }
         } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
     }
 
@@ -203,7 +196,7 @@ class ClassroomController extends AbstractController
             $joinedStudent = $studentRepo->findOneBy(["classId" => $classId, "userId" => $studentId]);
 
             if ($joinedStudent == null || $class == null) {
-                return new JsonResponse(["Message" => "student or class not found!"], 404, []);
+                return new JsonResponse(["msg" => "student or class not found!"], 404, []);
             } else {
                 if ($role == "teacher" || $userId == $studentId) {
                     $studentRepo->remove($joinedStudent, true);
@@ -212,13 +205,13 @@ class ClassroomController extends AbstractController
                     $class->setStudentCount($currentStudentCount - 1);
                     $classroomRepo->save($class, true);
 
-                    return new JsonResponse(["Message" => "deleted!"], 200, []);
+                    return new JsonResponse(["msg" => "deleted!"], 200, []);
                 } else {
-                    return new JsonResponse(["Message" => "unauthorized!"], 401, []);
+                    return new JsonResponse(["msg" => "unauthorized!"], 401, []);
                 }
             }
         } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
     }
 
@@ -235,25 +228,10 @@ class ClassroomController extends AbstractController
                 $classroomRepository->remove($classRoom);
                 // $classroomRepository->save($classRoom, true);
                 $entityManager->flush();
-                return new JsonResponse(["Message" => "Delete Successfully"], 200, []);
+                return new JsonResponse(["msg" => "Delete Successfully"], 200, []);
             }
         } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
     }
-
-    #[Route('/api/classroom/{classId}/student/attendance', name: 'app_classroom_getStudent', methods: ['GET'])]
-    public function getAttendanceList(Request $request, ClassroomRepository $classroomRepo, $classId, AttendanceRepository $attendanceRepo)
-    {
-        $class = $classroomRepo->findOneBy(["id" => $classId]);
-        
-        if ($class == null) {
-            return new JsonResponse(["Message" => "Class not found"], 400, []);
-        } else {
-            $studentList = $attendanceRepo->findAll(["classId" => $classId]);
-            return new JsonResponse($studentList, 200, []);
-        }
-    }
-
-    
 }
