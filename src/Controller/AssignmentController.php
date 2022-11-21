@@ -8,6 +8,7 @@ use App\Repository\ClassroomRepository;
 use App\Repository\PostsRepository;
 use App\Repository\SessionRepository;
 use App\Repository\StudentRepository;
+use App\Repository\UserInfoRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,7 +21,7 @@ class AssignmentController extends AbstractController
     //GET ASMs
     //takes: classId, postId
     #[Route('/api/classroom/{classId}/post/{postId}/assignment', name: 'app_asm_get', methods: ["GET"])]
-    public function getAssignment($postId, $classId, PostsRepository $postRepo, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, AssignmentRepository $asmRepo, ClassroomRepository $classRepo): Response
+    public function getAssignment($postId, $classId, PostsRepository $postRepo, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, AssignmentRepository $asmRepo, ClassroomRepository $classRepo, UserInfoRepository $userInfoRepo): Response
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
         $userId = $authInfo["userId"];
@@ -43,13 +44,22 @@ class AssignmentController extends AbstractController
             return new JsonResponse(["msg" => 'post not found'], 404, []);
         }
 
-        $asm = $asmRepo->findBy(["postId" => $postId]);
-        return new JsonResponse($asm, 200, []);
+        $dataArray = array();
+        $asms = $asmRepo->findBy(["postId" => $postId]);
+        foreach ($asms as $asm) {
+            $userInfo = $userInfoRepo->findOneBy(["userId" => $asm->getUserId()]);
+            $asmData = $asm->jsonSerialize();
+            $asmData['userName'] = $userInfo->getName();
+            $asmData['userImageUrl'] = $userInfo->getImageUrl();
+
+            array_push($dataArray, $asmData);
+        }
+        return new JsonResponse($dataArray, 200, []);
     }
 
     //GET SINGLE ASM
     //takes: classId, postId
-    #[Route('/api/classroom/{classId}/post/{postId}/assignment/{asmId}', name: 'app_asm_get', methods: ["GET"])]
+    #[Route('/api/classroom/{classId}/post/{postId}/assignment/{asmId}', name: 'app_asm_getSingle', methods: ["GET"])]
     public function getSingleAssignment($postId, $classId, $asmId, PostsRepository $postRepo, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, AssignmentRepository $asmRepo, ClassroomRepository $classRepo): Response
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);

@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Classroom;
 use App\Entity\Student;
-use App\Entity\UserInfo;
 use App\Entity\Attendance;
 use App\Repository\AttendanceRepository;
 use App\Repository\ClassroomRepository;
@@ -18,7 +17,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
-use PhpParser\Builder\Class_;
 
 class ClassroomController extends AbstractController
 {

@@ -14,7 +14,6 @@ use App\Repository\AssignmentRepository;
 use App\Repository\ClassroomRepository;
 use App\Repository\PostsRepository;
 use App\Repository\StudentRepository;
-use Symfony\Component\Security\Core\Role\Role;
 
 class PostController extends AbstractController
 {
@@ -52,10 +51,14 @@ class PostController extends AbstractController
                 $dataArray = array();
                 $posts = $postRepo->findAll(["classId" => $classId]);
                 foreach ($posts as $post) {
-                    $asm = $asmRepo->findOneBy(["postId" => $post->getId(), ""]);
+                    $asm = $asmRepo->findOneBy(["postId" => $post->getId(), "userId" => $userId]);
+                    $postData = $post->jsonSerialize();
+                    $postData['asmId'] = $asm == null ? null : $asm->getId();
+
+                    array_push($dataArray, $postData);
                 }
 
-                return new JsonResponse($posts, 200, []);
+                return new JsonResponse($dataArray, 200, []);
             }
         } catch (\Exception $err) {
             return new JsonResponse(["msg" => $err->getMessage()], 400, []);
