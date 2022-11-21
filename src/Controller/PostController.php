@@ -13,7 +13,6 @@ use App\Entity\Posts;
 use App\Repository\ClassroomRepository;
 use App\Repository\PostsRepository;
 use App\Repository\StudentRepository;
-use Doctrine\ORM\EntityManagerInterface;
 
 class PostController extends AbstractController
 {
