@@ -25,6 +25,9 @@ class Assignment implements \JsonSerializable
     #[ORM\Column(length: 50)]
     private ?string $dateAdded = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $mark = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -77,6 +80,20 @@ class Assignment implements \JsonSerializable
 
         return $this;
     }
+
+
+    public function getMark(): ?float
+    {
+        return $this->mark;
+    }
+
+    public function setMark(?float $mark): self
+    {
+        $this->mark = $mark;
+
+        return $this;
+    }
+
     public function jsonSerialize()
     {
         return [
@@ -85,6 +102,7 @@ class Assignment implements \JsonSerializable
             "postId" => $this->getPostId(),
             "fileUrl" => $this->getFileUrl(),
             "dateAdded" => $this->getDateAdded(),
+            "mark" => $this->getMark()
         ];
     }
 }

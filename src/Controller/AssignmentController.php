@@ -180,9 +180,7 @@ class AssignmentController extends AbstractController
         if ($class == null) {
             return new JsonResponse(['msg' => 'class not found'], 404, []);
         }
-
-        $student = $studentRepo->findOneBy(["classId" => $classId, "userId" => $userId]);
-        if ($student == null) {
+        if ($class->getTeacherId() != $userId) {
             return new JsonResponse(['msg' => 'not your class'], 401, []);
         }
 
@@ -195,12 +193,12 @@ class AssignmentController extends AbstractController
         if ($asm == null) {
             return new JsonResponse(['msg' => 'asm not found'], 404, []);
         }
-        if ($asm->getUserId() != $userId) {
-            return new JsonResponse(['msg' => 'not your asm'], 401, []);
-        }
 
-        $asmRepo->remove($asm, true);
+        $data = json_decode($request->getContent(), true); //convert data to associative array
+        $asm->setMark($data['mark']);
 
-        return new JsonResponse(['msg' => 'deleted'], 200, []);
+        $asmRepo->save($asm, true);
+
+        return new JsonResponse(['msg' => 'mark set'], 200, []);
     }
 }
