@@ -2,8 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\ClassSession;
-use App\Entity\Attendance;
 use App\Repository\AttendanceRepository;
 use App\Repository\ClassroomRepository;
 use App\Repository\ClassSessionRepository;
@@ -15,8 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AttendanceController extends AbstractController
 {
-    #[Route('/api/classroom/{classId}/attendance/session', name: 'app_attendance', methods: ['GET'])]
-    public function getClassSession(Request $request, $classId, AttendanceRepository $attendanceRepo, StudentRepository $studentRepo, ClassroomRepository $classRepo, ClassSessionRepository $classSessionRepo)
+    //ADD ATTENDANCES RECORDS
+    //takes: classId
+    //body params: <studentId> : <isAttend> - Example: {"1": true, "9": true, "10": true,...}
+    #[Route('/api/classroom/{classId}/classSession', name: 'app_attendance', methods: ['POST'])]
+    public function getClassSession(Request $request)
     {
         $data = json_decode($request->getContent(), true); //convert data to associative array
         foreach ($data as $studentId => $isAttend) {
