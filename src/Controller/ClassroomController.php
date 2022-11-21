@@ -129,13 +129,6 @@ class ClassroomController extends AbstractController
                     $currentStudentCount = $class->getStudentCount();
                     $class->setStudentCount($currentStudentCount + 1);
                     $classroomRepo->save($class, true);
-
-                    $attendance = new Attendance();
-                    $attendance->setUserId($userId);
-                    $attendance->setClassId($classId);
-                    $attendance->setDate(date("Y-m-d H:i:s"));
-                    $attendance->setIsAttend(false);
-                    $attendanceRepo->save($attendance, true);
                     return new JsonResponse(["Message" => "ok"], 200, []);
                 }
             }
