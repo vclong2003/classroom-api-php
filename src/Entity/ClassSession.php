@@ -20,7 +20,7 @@ class ClassSession
     private ?int $userId = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $expire = null;
+    private ?string $time = null;
 
     public function getId(): ?int
     {
@@ -51,14 +51,14 @@ class ClassSession
         return $this;
     }
 
-    public function getExpire(): ?string
+    public function getTime(): ?string
     {
-        return $this->expire;
+        return $this->time;
     }
 
-    public function setExpire(string $expire): self
+    public function setTime(string $time): self
     {
-        $this->expire = $expire;
+        $this->time = $time;
 
         return $this;
     }
