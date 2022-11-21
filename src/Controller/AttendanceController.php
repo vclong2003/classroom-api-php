@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AttendanceController extends AbstractController
 {
-    #[Route('/test', name: 'app_attendance', methods: ['POST'])]
+    #[Route('/api/test', name: 'app_attendance', methods: ['POST'])]
     public function index(Request $request): Response
     {
         $data = json_decode($request->getContent(), true); //convert data to associative array
