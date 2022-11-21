@@ -14,6 +14,9 @@ class AttendanceController extends AbstractController
     public function index(Request $request): Response
     {
         $data = json_decode($request->getContent(), true); //convert data to associative array
+        foreach ($data as $studentId => $isAttend) {
+            echo $studentId .  var_export($isAttend, true) . "\n";
+        }
         return new JsonResponse($data, 200, []);
     }
 }
