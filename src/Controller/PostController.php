@@ -10,35 +10,52 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\UserRepository;
 use App\Entity\Posts;
+use App\Repository\AssignmentRepository;
 use App\Repository\ClassroomRepository;
 use App\Repository\PostsRepository;
 use App\Repository\StudentRepository;
+use Symfony\Component\Security\Core\Role\Role;
 
 class PostController extends AbstractController
 {
     //GET POST
     // take: classId
     #[Route('/api/classroom/{classId}/post', name: 'app_post_get', methods: ['GET'])]
-    public function getPost(UserRepository $userRepo, PostsRepository $postRepo, $classId, Request $request, SessionRepository $sessionRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo)
+    public function getPost(UserRepository $userRepo, PostsRepository $postRepo, $classId, Request $request, SessionRepository $sessionRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo, AssignmentRepository $asmRepo)
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
             $userId = $authInfo["userId"];
-            $class = $classRepo->findOneBy(["id" => $classId]);
+            $role = $authInfo['role'];
 
+            $class = $classRepo->findOneBy(["id" => $classId]);
             if ($class == null) {
                 return new JsonResponse(["msg" => "not found"], 404, []);
-            } else {
-                $student = $studentRepo->findOneBy(["userId" => $userId, "classId" => $classId]);
-                $teacherId = $class->getTeacherId();
+            }
 
-                // if user is teacher or student of the class return result. Else, return unauth respone 
-                if ($student != null || $teacherId == $userId) {
-                    $posts = $postRepo->findAll(["classId" => $classId]);
-                    return new JsonResponse($posts, 200, []);
-                } else {
-                    return new JsonResponse(["msg" => "unauthorized!"], 401, []);
+            $teacherId = $class->getTeacherId();
+
+            if ($role == 'teacher') {
+                if ($teacherId != $userId) {
+                    return new JsonResponse(['msg' => 'not your class'], 401, []);
                 }
+                $posts = $postRepo->findAll(["classId" => $classId]);
+                return new JsonResponse($posts, 200, []);
+            }
+
+            if ($role == 'student') {
+                $student = $studentRepo->findOneBy(["userId" => $userId, "classId" => $classId]);
+                if ($student == null) {
+                    return new JsonResponse(['msg' => 'not your class'], 401, []);
+                }
+
+                $dataArray = array();
+                $posts = $postRepo->findAll(["classId" => $classId]);
+                foreach ($posts as $post) {
+                    $asm = $asmRepo->findOneBy(["postId" => $post->getId(), ""]);
+                }
+
+                return new JsonResponse($posts, 200, []);
             }
         } catch (\Exception $err) {
             return new JsonResponse(["msg" => $err->getMessage()], 400, []);

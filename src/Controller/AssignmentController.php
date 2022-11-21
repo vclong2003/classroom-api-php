@@ -9,7 +9,6 @@ use App\Repository\PostsRepository;
 use App\Repository\SessionRepository;
 use App\Repository\StudentRepository;
 use App\Repository\UserRepository;
-use PhpParser\Node\Expr\Assign;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,6 +44,33 @@ class AssignmentController extends AbstractController
         }
 
         $asm = $asmRepo->findBy(["postId" => $postId]);
+        return new JsonResponse($asm, 200, []);
+    }
+
+    //GET SINGLE ASM
+    //takes: classId, postId
+    #[Route('/api/classroom/{classId}/post/{postId}/assignment/{asmId}', name: 'app_asm_get', methods: ["GET"])]
+    public function getSingleAssignment($postId, $classId, $asmId, PostsRepository $postRepo, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, AssignmentRepository $asmRepo, ClassroomRepository $classRepo): Response
+    {
+        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+        $userId = $authInfo["userId"];
+        $role = $authInfo["role"];
+
+        $class = $classRepo->findOneBy(["id" => $classId]);
+        if ($class == null) {
+            return new JsonResponse(['msg' => 'class not found'], 404, []);
+        }
+
+        $post = $postRepo->findOneBy(["id" => $postId]);
+        if ($post == null) {
+            return new JsonResponse(["msg" => 'post not found'], 404, []);
+        }
+
+        $asm = $asmRepo->findOneBy(["id" => $asmId]);
+        if ($asm == null) {
+            return new JsonResponse(["msg" => 'asm not found'], 404, []);
+        }
+
         return new JsonResponse($asm, 200, []);
     }
 
@@ -166,7 +192,7 @@ class AssignmentController extends AbstractController
     //takes: classId, postId, asmId
     //body param: 'mark'
     #[Route('/api/classroom/{classId}/post/{postId}/assignment/{asmId}/mark', name: 'app_asm_setMark', methods: ["POST"])]
-    public function setAsmMark($classId, $postId, $asmId, PostsRepository $postRepo, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, AssignmentRepository $asmRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo): Response
+    public function setAsmMark($classId, $postId, $asmId, PostsRepository $postRepo, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, AssignmentRepository $asmRepo, ClassroomRepository $classRepo): Response
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
         $userId = $authInfo["userId"];
