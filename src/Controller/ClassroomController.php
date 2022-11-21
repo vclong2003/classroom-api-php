@@ -88,7 +88,7 @@ class ClassroomController extends AbstractController
     }
 
     //GET SINGLE CLASS INFO
-    // take classId, return class info
+    // takes: classId
     #[Route('/api/classroom/{classId}', name: 'app_classroom_getDetail', methods: ['GET'])]
     public function getClassroomDetail(ClassroomRepository $classroomRepo, UserInfoRepository $userInfoRepo, $classId): Response
     {
