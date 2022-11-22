@@ -55,7 +55,7 @@ class ClassroomController extends AbstractController
 
             $dataArray = array();
             if ($role == "teacher") {
-                $classrooms = $classroomRepo->findBy(["teacherId" => $userId]);
+                $classrooms = $classroomRepo->findBy(["teacherId" => $userId], ['']);
 
                 foreach ($classrooms as $class) {
                     $classArray = $class->jsonSerialize();

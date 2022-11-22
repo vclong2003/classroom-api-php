@@ -28,16 +28,16 @@ class AuthController extends AbstractController
             $user = new User();
 
             if ($data["name"] == "" || $data["email"] == "" || $data["password"] == "") {
-                return new JsonResponse(["Message" => "Please enter full fields"], 400, []);
+                return new JsonResponse(["msg" => "Please enter full fields"], 400, []);
             } else if (strlen($data['password']) < 8) {
-                return new JsonResponse(["Message" => "Password have at least 8 characters"], 400, []);
+                return new JsonResponse(["msg" => "Password have at least 8 characters"], 400, []);
             } else if (!str_ends_with($data['email'], "@gmail.com")) {
-                return new JsonResponse(["Message" => "Please enter a valid email address"], 400, []);
+                return new JsonResponse(["msg" => "Please enter a valid email address"], 400, []);
             }
 
             $user->setEmail($data['email']);
             $user->setPassword(password_hash($data['password'], PASSWORD_DEFAULT, []));
-            $user->setRole('student');                 //default role: student
+            $user->setRole('student'); //default role: student
 
             $addedId = $userRepo->save($user, true);
 
@@ -46,9 +46,9 @@ class AuthController extends AbstractController
             $userInfo->setName($data['name']);
             $userInfoRepo->save($userInfo, true);
 
-            return new JsonResponse(["Message" => "Registered!"], 201, []);
+            return new JsonResponse(["msg" => "Registered!"], 201, []);
         } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
     }
 
@@ -65,8 +65,11 @@ class AuthController extends AbstractController
             }
 
             $user = $userRepo->findOneBy(["email" => $data['email']]);
-            $isPasswordTrue = password_verify($data['password'], $user->getPassword());
+            if ($user == null) {
+                return new JsonResponse(["msg" => "account not found"], 404, []);
+            }
 
+            $isPasswordTrue = password_verify($data['password'], $user->getPassword());
             if ($isPasswordTrue) {
                 $session = new Session();
                 $session->setUserId($user->getId());
@@ -76,10 +79,10 @@ class AuthController extends AbstractController
 
                 return new JsonResponse(["sessionId" => $session->getSessionId()], 200, []);
             } else {
-                return new JsonResponse(["Message" => "Wrong password"], 400, []);
+                return new JsonResponse(["msg" => "Wrong password"], 403, []);
             }
         } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
     }
 
@@ -108,12 +111,14 @@ class AuthController extends AbstractController
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-            $userId = $authInfo["userId"];
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'session not valid'], 400, []);
+            }
             $role = $authInfo["role"];
 
             return new JsonResponse(["role" => $role], 202, []);
         } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
     }
 }

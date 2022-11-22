@@ -70,7 +70,6 @@ class UserController extends AbstractController
         }
     }
 
-    // BELOW FUNCTION WILL BE MOVED TO ADMIN CONTROLLER
     // #[Route('/api/user/remove/{userId}', name: 'app_user_remove', methods: ['GET'])]
     // public function deleteUser(Request $request, UserRepository $userRepository, SessionRepository $sessionRepository, $userId): Response
     // {
