@@ -22,7 +22,7 @@ class AttendanceController extends AbstractController
     //takes: classId
     //body params: <studentId> : <isAttend> - Example: {"1": true, "9": true, "10": true,...}
     #[Route('/api/classroom/{classId}/classSession', name: 'app_attendances_add', methods: ['POST'])]
-    public function addAttendances($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, ClassroomRepository $classRepo, ClassSessionRepository $classSessionRepo, AttendanceRepository $attendanceRepo)
+    public function addAttendances($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, ClassroomRepository $classRepo, ClassSessionRepository $classSessionRepo, AttendanceRepository $attendanceRepo,  ManagerRegistry $doctrine)
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
@@ -52,13 +52,15 @@ class AttendanceController extends AbstractController
             $classSessionRepo->save($classSession, true);
             $classSessionId = $classSession->getId();
 
+            $entityManager = $doctrine->getManager();
             foreach ($data as $studentId => $isAttend) {
                 $attendance = new Attendance();
                 $attendance->setClassSessionId($classSessionId);
                 $attendance->setUserId($studentId);
                 $attendance->setIsAttend($isAttend);
-                $attendanceRepo->save($attendance, true);
+                $attendanceRepo->save($attendance, false);
             }
+            $entityManager->flush();
 
             return new JsonResponse(['msg' => 'created'], 201, []);
         } catch (\Exception $err) {
