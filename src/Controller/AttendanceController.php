@@ -136,8 +136,9 @@ class AttendanceController extends AbstractController
         foreach ($attendances as $attendance) {
             $userInfo = $userInfoRepo->findOneBy(['userId' => $attendance->getUserId()]);
             $attendanceData = $attendance->jsonSerialize();
-            $attendanceData['userName'] = $userInfo->getName();
-            $attendanceData['userImageUrl'] = $userInfo->getImageUrl();
+            // temporary, wont't work with mock data
+            // $attendanceData['userName'] = $userInfo->getName();
+            // $attendanceData['userImageUrl'] = $userInfo->getImageUrl();
             array_push($dataArray, $attendanceData);
         }
 
