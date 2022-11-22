@@ -248,6 +248,7 @@ class AttendanceController extends AbstractController
                         : $attendanceDataArray["{$studentId}"] = $isAttend ? 1 : 0;
                 }
             }
+
             $numberOfSession = count($classSessions);
             foreach ($attendanceDataArray as $studentId => $attendedSession) {
                 $percentageDataArray["{$studentId}"] = round($attendedSession / $numberOfSession * 100, 2);
