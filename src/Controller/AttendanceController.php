@@ -147,7 +147,7 @@ class AttendanceController extends AbstractController
     //UPDATE ATTENDANCES
     //takes: classId, classSessionId
     //body params: <studentId> : <isAttend> - Example: {"1": true, "9": true, "10": true,...}
-    #[Route('/api/classroom/{classId}/classSession/{classSessionId}/attendances', name: 'app_attendances_add', methods: ['POST'])]
+    #[Route('/api/classroom/{classId}/classSession/{classSessionId}/attendances', name: 'app_attendances_update', methods: ['POST'])]
     public function updateAttendances($classId, $classSessionId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, ClassroomRepository $classRepo, ClassSessionRepository $classSessionRepo, AttendanceRepository $attendanceRepo, ManagerRegistry $doctrine)
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
@@ -198,5 +198,53 @@ class AttendanceController extends AbstractController
         $entityManager->flush();
 
         return new JsonResponse($attendances, 200, []);
+    }
+
+    //GET ATTENDANCE SUMMERIZATION
+    //takes: classId
+    #[Route(
+        '/api/classroom/{classId}/adtendanceSummarization',
+        name: 'app_classroom_getSum',
+        methods: ['GET']
+    )]
+    public function getAttendanceSum($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, ClassroomRepository $classRepo, ClassSessionRepository $classSessionRepo, AttendanceRepository $attendanceRepo)
+    {
+        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+        $userId = $authInfo["userId"];
+        $role = $authInfo["role"];
+
+        if ($role != 'teacher') {
+            return new JsonResponse(['msg' => 'unauthorized'], 401, []);
+        }
+
+        $class = $classRepo->findOneBy(['id' => $classId]);
+        if ($class == null) {
+            return new JsonResponse(['msg' => 'class not found'], 404, []);
+        }
+        if ($class->getTeacherId() != $userId) {
+            return new JsonResponse(['msg' => 'not your class'], 404, []);
+        }
+
+        $percentageDataArray = [];
+        $attendanceDataArray = [];
+        $classSessions = $classSessionRepo->findBy(['classId' => $classId]);
+        foreach ($classSessions as $classSession) {
+            $classSessionId = $classSession->getId();
+            $attendances = $attendanceRepo->findBy(['classSessionId' => $classSessionId]);
+            foreach ($attendances as $attendance) {
+                $studentId = $attendance->getUserId();
+                $isAttend = $attendance->isIsAttend();
+
+                array_key_exists("{$studentId}", $attendanceDataArray)
+                    ? $attendanceDataArray["{$studentId}"] = $isAttend ? $attendanceDataArray["{$studentId}"] + 1 : $attendanceDataArray["{$studentId}"]
+                    : $attendanceDataArray["{$studentId}"] = $isAttend ? 1 : 0;
+            }
+        }
+        $numberOfSession = count($attendanceDataArray);
+        foreach ($attendanceDataArray as $studentId => $attendedSession) {
+            $percentageDataArray["{$studentId}"] = round($attendedSession / $numberOfSession * 100, 2);
+        }
+
+        return new JsonResponse($percentageDataArray, 200, []);
     }
 }
