@@ -45,9 +45,12 @@ class ClassroomController extends AbstractController
     }
 
     // GET ALL CLASS
+    //optional: searchVal (?searchVal=...)
     #[Route('/api/classroom/', name: 'app_classroom_get', methods: ['GET'])]
     public function getClassroom(UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo, UserInfoRepository $userInfoRepo, StudentRepository $studentRepo): Response
     {
+        $searchVal = $request->query->get('searchVal') ? $request->query->get('searchVal') : '';
+
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
             $userId = $authInfo["userId"];
@@ -55,7 +58,8 @@ class ClassroomController extends AbstractController
 
             $dataArray = array();
             if ($role == "teacher") {
-                $classrooms = $classroomRepo->findBy(["teacherId" => $userId], ['']);
+                // $classrooms = $classroomRepo->findBy(["teacherId" => $userId], ['startDate' => 'DESC']);
+                $classrooms = $classroomRepo->customFindBy($userId, $searchVal);
 
                 foreach ($classrooms as $class) {
                     $classArray = $class->jsonSerialize();
@@ -65,7 +69,7 @@ class ClassroomController extends AbstractController
                 }
                 return new JsonResponse($dataArray, 200, []);
             } else if ($role == "student") {
-                $classrooms = $classroomRepo->findAll();
+                $classrooms = $classroomRepo->customFindBy(null, $searchVal);
                 foreach ($classrooms as $class) {
                     $classId = $class->getId();
                     $student = $studentRepo->findOneBy(["classId" => $classId, "userId" => $userId]);
