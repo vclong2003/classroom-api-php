@@ -20,7 +20,7 @@ class PostController extends AbstractController
     //GET POST
     // take: classId
     #[Route('/api/classroom/{classId}/post', name: 'app_post_get', methods: ['GET'])]
-    public function getPost(UserRepository $userRepo, PostsRepository $postRepo, $classId, Request $request, SessionRepository $sessionRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo, AssignmentRepository $asmRepo)
+    public function getPost($classId, UserRepository $userRepo, PostsRepository $postRepo,  Request $request, SessionRepository $sessionRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo, AssignmentRepository $asmRepo)
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
@@ -38,7 +38,7 @@ class PostController extends AbstractController
                 if ($teacherId != $userId) {
                     return new JsonResponse(['msg' => 'not your class'], 401, []);
                 }
-                $posts = $postRepo->findAll(["classId" => $classId]);
+                $posts = $postRepo->findBy(["classId" => $classId]);
                 return new JsonResponse($posts, 200, []);
             }
 
@@ -49,7 +49,7 @@ class PostController extends AbstractController
                 }
 
                 $dataArray = array();
-                $posts = $postRepo->findAll(["classId" => $classId]);
+                $posts = $postRepo->findBy(["classId" => $classId]);
                 foreach ($posts as $post) {
                     $asm = $asmRepo->findOneBy(["postId" => $post->getId(), "userId" => $userId]);
                     $postData = $post->jsonSerialize();

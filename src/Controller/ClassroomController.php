@@ -63,20 +63,30 @@ class ClassroomController extends AbstractController
 
                 foreach ($classrooms as $class) {
                     $classArray = $class->jsonSerialize();
-                    $classArray["teacherName"] = $userInfoRepo->findOneBy(["userId" => $class->getTeacherId()])->getName();
-                    $classArray["teacherImageUrl"] = $userInfoRepo->findOneBy(["userId" => $class->getTeacherId()])->getImageUrl();
+                    $user = $userRepo->findOneBy(['id' => $class->getTeacherId()]);
+                    $teacherInfo = $userInfoRepo->findOneBy(["userId" => $class->getTeacherId()]);
+
+                    $classArray["teacherName"] = $teacherInfo->getName();
+                    $classArray["teacherImageUrl"] = $teacherInfo->getImageUrl();
+                    $classArray["teacherPhoneNumber"] = $teacherInfo->getPhoneNumber();
+                    $classArray["teacherEmail"] = $user->getEmail();
+
                     array_push($dataArray, $classArray);
                 }
                 return new JsonResponse($dataArray, 200, []);
             } else if ($role == "student") {
                 $classrooms = $classroomRepo->customFindBy(null, $searchVal);
                 foreach ($classrooms as $class) {
+                    $classArray = $class->jsonSerialize();
                     $classId = $class->getId();
                     $student = $studentRepo->findOneBy(["classId" => $classId, "userId" => $userId]);
+                    $user = $userRepo->findOneBy(['id' => $class->getTeacherId()]);
+                    $teacherInfo = $userInfoRepo->findOneBy(["userId" => $class->getTeacherId()]);
 
-                    $classArray = $class->jsonSerialize();
-                    $classArray["teacherName"] = $userInfoRepo->findOneBy(["userId" => $class->getTeacherId()])->getName();
-                    $classArray["teacherImageUrl"] = $userInfoRepo->findOneBy(["userId" => $class->getTeacherId()])->getImageUrl();
+                    $classArray["teacherName"] = $teacherInfo->getName();
+                    $classArray["teacherImageUrl"] = $teacherInfo->getImageUrl();
+                    $classArray["teacherPhoneNumber"] = $teacherInfo->getPhoneNumber();
+                    $classArray["teacherEmail"] = $user->getEmail();
                     $classArray["isJoined"] = ($student == null) ? false : true;
 
                     array_push($dataArray, $classArray);
@@ -91,7 +101,7 @@ class ClassroomController extends AbstractController
     //GET SINGLE CLASS INFO
     // takes: classId
     #[Route('/api/classroom/{classId}', name: 'app_classroom_getDetail', methods: ['GET'])]
-    public function getClassroomDetail(ClassroomRepository $classroomRepo, UserInfoRepository $userInfoRepo, $classId): Response
+    public function getClassroomDetail($classId, ClassroomRepository $classroomRepo, UserInfoRepository $userInfoRepo, UserRepository $userRepo): Response
     {
         try {
             $classRoom = $classroomRepo->findOneBy(["id" => $classId]);
@@ -99,10 +109,14 @@ class ClassroomController extends AbstractController
                 return new JsonResponse(["msg" => "class not found"], 404, []);
             }
 
-            $teacherInfo = $userInfoRepo->findOneBy(["userId" => $classRoom->getTeacherId()]);
             $classRoomInfo = $classRoom->jsonSerialize();
-            $classRoomInfo['teacherName'] = $teacherInfo->getName();
-            $classRoomInfo['teacherImgURL'] = $teacherInfo->getImageUrl();
+
+            $user = $userRepo->findOneBy(['id' => $classRoom->getTeacherId()]);
+            $teacherInfo = $userInfoRepo->findOneBy(["userId" => $classRoom->getTeacherId()]);
+            $classRoomInfo["teacherName"] = $teacherInfo->getName();
+            $classRoomInfo["teacherImageUrl"] = $teacherInfo->getImageUrl();
+            $classRoomInfo["teacherPhoneNumber"] = $teacherInfo->getPhoneNumber();
+            $classRoomInfo["teacherEmail"] = $user->getEmail();
 
             return new JsonResponse($classRoomInfo, 200, []);
         } catch (\Exception $err) {
