@@ -86,25 +86,6 @@ class AuthController extends AbstractController
         }
     }
 
-    //VERIFY SESSIONID
-    // takes sessionId in headers, return 202 (exsist, not expire) if valid, else return 406
-    #[Route('/api/auth', name: 'app_auth_verify_sessionId', methods: ['HEAD'])]
-    public function verifySessionId(Request $request, SessionRepository $sessionRepo)
-    {
-        try {
-            $data = $request->headers->get('sessionId');
-            $sessionEntity = $sessionRepo->findOneBy(["sessionId" => $data]);
-
-            if ($sessionEntity != null) {
-                return new JsonResponse(["Message" => "Verified!"], 202, []);
-            } else {
-                return new JsonResponse(["Message" => "Verify failed!"], 406, []);
-            }
-        } catch (\Exception $err) {
-            return new JsonResponse(["Message" => $err->getMessage()], 400, []);
-        }
-    }
-
     //GET USER ROLE, using sessionId
     #[Route('/api/auth/role', name: 'app_auth_getRole', methods: ['GET'])]
     public function test(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
@@ -112,7 +93,7 @@ class AuthController extends AbstractController
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
-                return new JsonResponse(["msg" => 'session not valid'], 400, []);
+                return new JsonResponse(["msg" => 'session not valid'], 406, []);
             }
             $role = $authInfo["role"];
 

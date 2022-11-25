@@ -49,7 +49,7 @@ class PostController extends AbstractController
                 }
 
                 $dataArray = array();
-                $posts = $postRepo->findBy(["classId" => $classId]);
+                $posts = $postRepo->findBy(["classId" => $classId], ['dateAdded' => 'DESC']);
                 foreach ($posts as $post) {
                     $asm = $asmRepo->findOneBy(["postId" => $post->getId(), "userId" => $userId]);
                     $postData = $post->jsonSerialize();
