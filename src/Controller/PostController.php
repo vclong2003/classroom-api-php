@@ -38,7 +38,7 @@ class PostController extends AbstractController
                 if ($teacherId != $userId) {
                     return new JsonResponse(['msg' => 'not your class'], 401, []);
                 }
-                $posts = $postRepo->findBy(["classId" => $classId]);
+                $posts = $postRepo->findBy(["classId" => $classId], ['dateAdded' => 'DESC']);
                 return new JsonResponse($posts, 200, []);
             }
 
@@ -59,6 +59,59 @@ class PostController extends AbstractController
                 }
 
                 return new JsonResponse($dataArray, 200, []);
+            }
+        } catch (\Exception $err) {
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
+        }
+    }
+
+    //GET SINGLE POST
+    // take: classId
+    #[Route('/api/classroom/{classId}/post/{postId}', name: 'app_post_getSingle', methods: ['GET'])]
+    public function getSinglePost($classId, $postId, UserRepository $userRepo, PostsRepository $postRepo,  Request $request, SessionRepository $sessionRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo, AssignmentRepository $asmRepo)
+    {
+        try {
+            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $userId = $authInfo["userId"];
+            $role = $authInfo['role'];
+
+            $class = $classRepo->findOneBy(["id" => $classId]);
+            if ($class == null) {
+                return new JsonResponse(["msg" => "not found"], 404, []);
+            }
+
+            $teacherId = $class->getTeacherId();
+
+            if ($role == 'teacher') {
+                if ($teacherId != $userId) {
+                    return new JsonResponse(['msg' => 'not your class'], 401, []);
+                }
+
+                $post = $postRepo->findOneBy(["classId" => $classId, 'id' => $postId]);
+                if ($post == null) {
+                    return new JsonResponse(['msg' => 'post not found'], 404, []);
+                }
+
+                return new JsonResponse($post, 200, []);
+            }
+
+            if ($role == 'student') {
+                $student = $studentRepo->findOneBy(["userId" => $userId, "classId" => $classId]);
+                if ($student == null) {
+                    return new JsonResponse(['msg' => 'not your class'], 401, []);
+                }
+
+                $post = $postRepo->findOneBy(["classId" => $classId, 'id' => $postId]);
+                if ($post == null) {
+                    return new JsonResponse(['msg' => 'post not found'], 404, []);
+                }
+
+                $asm = $asmRepo->findOneBy(["postId" => $post->getId(), "userId" => $userId]);
+
+                $postDataArray = $post->jsonSerialize();
+                $postDataArray['asmId'] = $asm == null ? null : $asm->getId();
+
+                return new JsonResponse($postDataArray, 200, []);
             }
         } catch (\Exception $err) {
             return new JsonResponse(["msg" => $err->getMessage()], 400, []);
@@ -149,24 +202,27 @@ class PostController extends AbstractController
         $userId = $authInfo["userId"];
         $role = $authInfo["role"];
 
-        if ($role != "admin" && $role != "teacher") {
+        if ($role != "teacher") {
             return new JsonResponse(["msg" => "unauthorized!"], 401, []);
         }
 
         try {
             $class = $classRepo->findOneBy(["id" => $classId]);
-            $post = $postRepo->findOneBy(["classId" => $classId, "id" => $postId]);
-            if ($class == null || $post == null) {
-                return new JsonResponse(["msg" => "class or post not found"], 404, []);
-            } else {
-                if ($userId != $post->getUserId()) {
-                    return new JsonResponse(["msg" => "unauthorized!"], 401, []);
-                }
-
-                $postRepo->remove($post, true);
-
-                return new JsonResponse(["msg" => "deleted"], 200, []);
+            if ($class == null) {
+                return new JsonResponse(["msg" => "class not found!"], 404, []);
             }
+            if ($class->getTeacherId() != $userId) {
+                return new JsonResponse(["msg" => "not your class!"], 401, []);
+            }
+
+            $post = $postRepo->findOneBy(["classId" => $classId, "id" => $postId]);
+            if ($post == null) {
+                return new JsonResponse(["msg" => "post not found"], 404, []);
+            }
+
+            $postRepo->remove($post, true);
+
+            return new JsonResponse(["msg" => "deleted"], 200, []);
         } catch (\Exception $err) {
             return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
