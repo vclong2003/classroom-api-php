@@ -51,10 +51,11 @@ class PostController extends AbstractController
                 $dataArray = array();
                 $posts = $postRepo->findBy(["classId" => $classId], ['dateAdded' => 'DESC']);
                 foreach ($posts as $post) {
-                    $asm = $asmRepo->findOneBy(["postId" => $post->getId(), "userId" => $userId]);
                     $postData = $post->jsonSerialize();
-                    $postData['asmId'] = $asm == null ? null : $asm->getId();
-
+                    if ($post->isIsAssignment()) {
+                        $asm = $asmRepo->findOneBy(["postId" => $post->getId(), "userId" => $userId]);
+                        $postData['asmId'] = $asm == null ? null : $asm->getId();
+                    }
                     array_push($dataArray, $postData);
                 }
 
@@ -106,10 +107,11 @@ class PostController extends AbstractController
                     return new JsonResponse(['msg' => 'post not found'], 404, []);
                 }
 
-                $asm = $asmRepo->findOneBy(["postId" => $post->getId(), "userId" => $userId]);
-
                 $postDataArray = $post->jsonSerialize();
-                $postDataArray['asmId'] = $asm == null ? null : $asm->getId();
+                if ($post->isIsAssignment()) {
+                    $asm = $asmRepo->findOneBy(["postId" => $post->getId(), "userId" => $userId]);
+                    $postDataArray['asmId'] = $asm == null ? null : $asm->getId();
+                }
 
                 return new JsonResponse($postDataArray, 200, []);
             }
