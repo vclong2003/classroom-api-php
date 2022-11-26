@@ -95,6 +95,7 @@ class AssignmentController extends AbstractController
     //ADD ASM
     //takes: classId, postId
     //body param: fileUrl
+    //return: new asmId
     #[Route('/api/classroom/{classId}/post/{postId}/assignment', name: 'app_asm_add', methods: ["POST"])]
     public function addAssignment($classId, $postId, PostsRepository $postRepo, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, AssignmentRepository $asmRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo): Response
     {
@@ -126,7 +127,7 @@ class AssignmentController extends AbstractController
             $asm->setDateAdded(date("Y-m-d H:i:s"));
             $asmRepo->save($asm, true);
 
-            return new JsonResponse(['msg' => 'created'], 201, []);
+            return new JsonResponse(['asmId' => $asm->getId()], 201, []);
         } catch (\Exception $err) {
             return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
