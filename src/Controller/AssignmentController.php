@@ -127,6 +127,9 @@ class AssignmentController extends AbstractController
             $asm->setDateAdded(date("Y-m-d H:i:s"));
             $asmRepo->save($asm, true);
 
+            $post->setSubmitCount($post->getSubmitCount() + 1);
+            $postRepo->save($post, true);
+
             return new JsonResponse(['asmId' => $asm->getId()], 201, []);
         } catch (\Exception $err) {
             return new JsonResponse(["msg" => $err->getMessage()], 400, []);
