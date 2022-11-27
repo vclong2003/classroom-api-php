@@ -236,8 +236,8 @@ class ClassroomController extends AbstractController
             }
 
             $studentRepo->remove($joinedStudent, true);
-            $currentStudentCount = $class->getStudentCount();
-            $class->setStudentCount($currentStudentCount - 1);
+
+            $class->setStudentCount($class->getStudentCount() - 1);
             $classroomRepo->save($class, true);
 
             return new JsonResponse(["msg" => "deleted!"], 200, []);
