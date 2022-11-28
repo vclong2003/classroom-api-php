@@ -221,24 +221,35 @@ class ClassroomController extends AbstractController
             $userId = $authInfo["userId"];
             $role = $authInfo["role"];
 
-            if ($role != "teacher" && $userId != $studentId) {
-                return new JsonResponse(["msg" => "unauthorized!"], 401, []);
-            }
-
             $class = $classroomRepo->findOneBy(["id" => $classId]);
             if ($class == null) {
                 return new JsonResponse(["msg" => "class not found"], 404, []);
             }
 
-            $joinedStudent = $studentRepo->findOneBy(["classId" => $classId, "userId" => $studentId]);
-            if ($joinedStudent == null) {
-                return new JsonResponse(["msg" => "student not found!"], 404, []);
+            if ($role === 'teacher') {
+                if ($class->getTeacherId() != $userId) {
+                    return new JsonResponse(["msg" => "not your class"], 403, []);
+                }
+
+                $joinedStudent = $studentRepo->findOneBy(["classId" => $classId, "userId" => $studentId]);
+                if ($joinedStudent == null) {
+                    return new JsonResponse(["msg" => "student not found!"], 404, []);
+                }
+                $studentRepo->remove($joinedStudent, true);
+
+                $class->setStudentCount($class->getStudentCount() - 1);
+                $classroomRepo->save($class, true);
             }
 
-            $studentRepo->remove($joinedStudent, true);
-
-            $class->setStudentCount($class->getStudentCount() - 1);
-            $classroomRepo->save($class, true);
+            if ($role === 'student') {
+                $joinedStudent = $studentRepo->findOneBy(["classId" => $classId, "userId" => $userId]);
+                if ($joinedStudent == null) {
+                    return new JsonResponse(["msg" => "student not found!"], 404, []);
+                }
+                $studentRepo->remove($joinedStudent, true);
+                $class->setStudentCount($class->getStudentCount() - 1);
+                $classroomRepo->save($class, true);
+            }
 
             return new JsonResponse(["msg" => "deleted!"], 200, []);
         } catch (\Exception $err) {
