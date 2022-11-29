@@ -24,3 +24,4 @@ function getAuthInfo(Request $request, SessionRepository $sessionRepo, UserRepos
         return $dataArray;
     }
 }
+//test
