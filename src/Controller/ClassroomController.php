@@ -18,14 +18,16 @@ use Symfony\Component\Routing\Annotation\Route;
 class ClassroomController extends AbstractController
 {
     //CREATE CLASS
-    //add classroom, takes "name" param
+    //add classroom
+    //body param: name
     #[Route('/api/classroom', name: 'app_classroom_create', methods: ['POST'])]
     public function addClassroom(UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo): Response
     {
         try {
             $data = json_decode($request->getContent(), true); //convert data to associative array
-            $userId = getAuthInfo($request, $sessionRepo, $userRepo)["userId"];
-            $role = $userRepo->findOneBy(["id" => $userId])->getRole();
+            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $userId = $authInfo["userId"];
+            $role = $authInfo["role"];
 
             if ($role != "teacher") {
                 return new JsonResponse(["msg" => "unauthorized"], 401, []);
