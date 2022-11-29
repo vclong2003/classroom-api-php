@@ -71,7 +71,7 @@ class AttendanceController extends AbstractController
     //GET CLASS_SESSIONS (ATTENDANCES GROUP)
     //takes: classId
     #[Route('/api/classroom/{classId}/classSession', name: 'app_classSession_get', methods: ['GET'])]
-    public function getClassSession($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, ClassroomRepository $classRepo, ClassSessionRepository $classSessionRepo, AttendanceRepository $attendanceRepo)
+    public function getClassSession($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, ClassroomRepository $classRepo, ClassSessionRepository $classSessionRepo)
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
@@ -90,7 +90,7 @@ class AttendanceController extends AbstractController
                 return new JsonResponse(['msg' => 'not your class'], 404, []);
             }
 
-            $classSessions = $classSessionRepo->findBy(['classId' => $classId]);
+            $classSessions = $classSessionRepo->findBy(['classId' => $classId]);   
 
             return new JsonResponse($classSessions, 200, []);
         } catch (\Exception $err) {
