@@ -42,25 +42,19 @@ class UserController extends AbstractController
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
             $userId = $authInfo["userId"];
             $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
-            $phone = $userInfoRepo->findOneBy(["userId" => $userId])->getPhoneNumber();
 
             if ($userInfo == null) {
                 return new JsonResponse(["Message" => "user not found!"], 404, []);
-            } else {
-                $data = json_decode($request->getContent(), true); //convert data to associative array
-                if ($data["phoneNumber"] != $phone) {
-                    $userInfo->setDob($data["dob"]);
-                    $userInfo->setPhoneNumber($data["phoneNumber"]);
-                    $userInfo->setAddress($data["address"]);
-                    $userInfo->setImageUrl($data["imageUrl"]);
-
-                    $userInfoRepo->save($userInfo, true);
-
-                    return new JsonResponse($userInfo, 200, []);
-                } else {
-                    return new JsonResponse(["Message" => "Invalid phone"], 400, []);
-                }
             }
+
+            $data = json_decode($request->getContent(), true); //convert data to associative array
+            $userInfo->setDob($data["dob"]);
+            $userInfo->setPhoneNumber($data["phoneNumber"]);
+            $userInfo->setAddress($data["address"]);
+            $userInfo->setImageUrl($data["imageUrl"]);
+            $userInfoRepo->save($userInfo, true);
+
+            return new JsonResponse($userInfo, 200, []);
         } catch (\Exception $err) {
             return new JsonResponse(["Message" => $err->getMessage()], 400, []);
         }
