@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Attendance;
 use App\Entity\ClassSession;
+use App\Entity\UserInfo;
 use App\Repository\AttendanceRepository;
 use App\Repository\ClassroomRepository;
 use App\Repository\ClassSessionRepository;
@@ -213,7 +214,7 @@ class AttendanceController extends AbstractController
     //GET ATTENDANCE SUMMERIZATION
     //takes: classId
     #[Route('/api/classroom/{classId}/adtendanceSummarization', name: 'app_classroom_getSum', methods: ['GET'])]
-    public function getAttendanceSum($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, ClassroomRepository $classRepo, ClassSessionRepository $classSessionRepo, AttendanceRepository $attendanceRepo)
+    public function getAttendanceSum($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, ClassroomRepository $classRepo, ClassSessionRepository $classSessionRepo, AttendanceRepository $attendanceRepo, UserInfoRepository $userInfoRepo)
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
@@ -250,7 +251,10 @@ class AttendanceController extends AbstractController
 
             $numberOfSession = count($classSessions);
             foreach ($attendanceDataArray as $studentId => $attendedSession) {
-                $percentageDataArray["{$studentId}"] = round($attendedSession / $numberOfSession * 100, 2);
+                $userInfo = $userInfoRepo->findOneBy(['userId' => $studentId]);
+                $studentName = $userInfo ? $userInfo->getName() : "No name";
+
+                $percentageDataArray[$studentName] = round($attendedSession / $numberOfSession * 100, 2);
             }
 
             return new JsonResponse($percentageDataArray, 200, []);
