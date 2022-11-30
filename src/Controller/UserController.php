@@ -48,6 +48,7 @@ class UserController extends AbstractController
             }
 
             $data = json_decode($request->getContent(), true); //convert data to associative array
+            $userInfo->setName($data['name']);
             $userInfo->setDob($data["dob"]);
             $userInfo->setPhoneNumber($data["phoneNumber"]);
             $userInfo->setAddress($data["address"]);
