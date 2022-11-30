@@ -90,7 +90,7 @@ class AttendanceController extends AbstractController
                 return new JsonResponse(['msg' => 'not your class'], 404, []);
             }
 
-            $classSessions = $classSessionRepo->findBy(['classId' => $classId]);   
+            $classSessions = $classSessionRepo->findBy(['classId' => $classId], ['time' => 'DESC']);
 
             return new JsonResponse($classSessions, 200, []);
         } catch (\Exception $err) {
@@ -139,9 +139,8 @@ class AttendanceController extends AbstractController
             foreach ($attendances as $attendance) {
                 $userInfo = $userInfoRepo->findOneBy(['userId' => $attendance->getUserId()]);
                 $attendanceData = $attendance->jsonSerialize();
-                // temporary, wont't work with mock data
-                // $attendanceData['userName'] = $userInfo->getName();
-                // $attendanceData['userImageUrl'] = $userInfo->getImageUrl();
+                $attendanceData['name'] = $userInfo->getName();
+                $attendanceData['imageUrl'] = $userInfo->getImageUrl();
                 array_push($dataArray, $attendanceData);
             }
 
