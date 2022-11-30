@@ -4,8 +4,10 @@ namespace App\Entity;
 
 use App\Repository\SessionRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 #[ORM\Entity(repositoryClass: SessionRepository::class)]
+#[UniqueConstraint(fields: ['id', 'userId'])]
 class Session implements \JsonSerializable
 {
     #[ORM\Id]

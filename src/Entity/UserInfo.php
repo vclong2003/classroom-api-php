@@ -4,8 +4,10 @@ namespace App\Entity;
 
 use App\Repository\UserInfoRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 #[ORM\Entity(repositoryClass: UserInfoRepository::class)]
+#[UniqueConstraint(fields: ['id', 'userId'])]
 class UserInfo implements \JsonSerializable
 {
     #[ORM\Id]
@@ -13,7 +15,7 @@ class UserInfo implements \JsonSerializable
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
+    #[ORM\Column(unique: true)]
     private ?int $userId = null;
 
     #[ORM\Column(length: 50)]

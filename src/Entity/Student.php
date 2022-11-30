@@ -4,8 +4,15 @@ namespace App\Entity;
 
 use App\Repository\StudentRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 #[ORM\Entity(repositoryClass: StudentRepository::class)]
+#[UniqueConstraint(
+    fields: ['id', 'classId']
+)]
+#[UniqueConstraint(
+    fields: ['id', 'userId']
+)]
 class Student implements \JsonSerializable
 {
     #[ORM\Id]

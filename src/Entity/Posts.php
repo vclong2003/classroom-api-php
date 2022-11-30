@@ -5,8 +5,12 @@ namespace App\Entity;
 use App\Repository\PostsRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 #[ORM\Entity(repositoryClass: PostsRepository::class)]
+#[UniqueConstraint(
+    fields: ['id', 'classId']
+)]
 class Posts implements \JsonSerializable
 {
     #[ORM\Id]

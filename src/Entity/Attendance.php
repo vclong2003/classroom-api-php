@@ -4,8 +4,18 @@ namespace App\Entity;
 
 use App\Repository\AttendanceRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 #[ORM\Entity(repositoryClass: AttendanceRepository::class)]
+#[UniqueConstraint(
+    fields: ['userId', 'classSessionId']
+)]
+#[UniqueConstraint(
+    fields: ['id', 'userId']
+)]
+#[UniqueConstraint(
+    fields: ['id', 'classSessionId']
+)]
 class Attendance implements \JsonSerializable
 {
     #[ORM\Id]
