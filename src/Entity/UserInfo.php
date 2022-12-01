@@ -15,7 +15,7 @@ class UserInfo implements \JsonSerializable
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(unique: true)]
+    #[ORM\Column]
     private ?int $userId = null;
 
     #[ORM\Column(length: 50)]
