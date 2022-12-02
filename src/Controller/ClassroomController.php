@@ -47,7 +47,7 @@ class ClassroomController extends AbstractController
 
     //UPDATE CLASS
     //body param: name
-    #[Route('/api/classroom/{classId}', name: 'app_classroom_create', methods: ['POST'])]
+    #[Route('/api/classroom/{classId}', name: 'app_classroom_update', methods: ['POST'])]
     public function updateClassroom($classId, UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo): Response
     {
         try {
