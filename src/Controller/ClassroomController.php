@@ -123,7 +123,6 @@ class ClassroomController extends AbstractController
 
             $dataArray = array();
             if ($role == "teacher") {
-                // $classrooms = $classroomRepo->findBy(["teacherId" => $userId], ['startDate' => 'DESC']);
                 $classrooms = $classroomRepo->customFindBy($userId, $searchVal);
 
                 foreach ($classrooms as $class) {

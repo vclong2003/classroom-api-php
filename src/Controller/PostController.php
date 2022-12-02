@@ -14,6 +14,7 @@ use App\Repository\AssignmentRepository;
 use App\Repository\ClassroomRepository;
 use App\Repository\PostsRepository;
 use App\Repository\StudentRepository;
+use Doctrine\Persistence\ManagerRegistry;
 
 class PostController extends AbstractController
 {
@@ -198,7 +199,7 @@ class PostController extends AbstractController
     //DELETE POST
     //takes: classId and postId
     #[Route('/api/classroom/{classId}/post/{postId}', name: 'app_post_delete', methods: ['DELETE'])]
-    public function deletePost(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, PostsRepository $postRepo, $classId, $postId, ClassroomRepository $classRepo)
+    public function deletePost(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, PostsRepository $postRepo, $classId, $postId, ClassroomRepository $classRepo, AssignmentRepository $asmRepo, ManagerRegistry $doctrine)
     {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
         $userId = $authInfo["userId"];
@@ -220,6 +221,15 @@ class PostController extends AbstractController
             $post = $postRepo->findOneBy(["classId" => $classId, "id" => $postId]);
             if ($post == null) {
                 return new JsonResponse(["msg" => "post not found"], 404, []);
+            }
+
+            if ($post->isIsAssignment()) {
+                $entityManager = $doctrine->getManager();
+                $asms = $asmRepo->findBy(['postId' => $post->getId()]);
+                foreach ($asms as $asm) {
+                    $asmRepo->remove($asm);
+                }
+                $entityManager->flush();
             }
 
             $postRepo->remove($post, true);

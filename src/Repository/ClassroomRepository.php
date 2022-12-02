@@ -73,8 +73,8 @@ class ClassroomRepository extends ServiceEntityRepository
                 ->andWhere('c.name LIKE :val')
                 ->setParameter('val', '%' . $searchVal . '%')
                 ->orderBy('c.startDate', 'DESC')
-                ->setFirstResult(null)
-                ->setMaxResults(null)
+                //->setFirstResult(null)
+                //->setMaxResults(null)
                 ->getQuery()
                 ->getResult();
         } else {
