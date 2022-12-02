@@ -18,7 +18,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class ClassroomController extends AbstractController
 {
     //CREATE CLASS
-    //add classroom
     //body param: name
     #[Route('/api/classroom', name: 'app_classroom_create', methods: ['POST'])]
     public function addClassroom(UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo): Response
@@ -41,6 +40,70 @@ class ClassroomController extends AbstractController
             $classroomRepo->save($classroom, true);
 
             return new JsonResponse(["msg" => "Created"], 201, []);
+        } catch (\Exception $err) {
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
+        }
+    }
+
+    //UPDATE CLASS
+    //body param: name
+    #[Route('/api/classroom/{classId}', name: 'app_classroom_create', methods: ['POST'])]
+    public function updateClassroom($classId, UserRepository $userRepo, ClassroomRepository $classroomRepo, Request $request, SessionRepository $sessionRepo): Response
+    {
+        try {
+            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $userId = $authInfo["userId"];
+            $role = $authInfo["role"];
+
+            if ($role != "teacher") {
+                return new JsonResponse(["msg" => "unauthorized"], 401, []);
+            }
+
+            $classroom = $classroomRepo->findOneBy(['id' => $classId]);
+            if ($classroom == null) {
+                return new JsonResponse(["msg" => "class not found"], 404, []);
+            }
+
+            if ($classroom->getTeacherId() != $userId) {
+                return new JsonResponse(["msg" => "not your class"], 401, []);
+            }
+
+            $data = json_decode($request->getContent(), true); //convert data to associative array
+
+            $classroom->setName($data['name']);
+            $classroomRepo->save($classroom, true);
+
+            return new JsonResponse(["msg" => "Updated"], 200, []);
+        } catch (\Exception $err) {
+            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
+        }
+    }
+
+    //REMOVE CLASS
+    #[Route('/api/classroom/{classId}', name: 'app_classroom_leave', methods: ['DELETE'])]
+    public function removeClass($classId, Request $request, ClassroomRepository $classroomRepo, UserRepository $userRepo, SessionRepository $sessionRepo)
+    {
+        try {
+            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $userId = $authInfo["userId"];
+            $role = $authInfo["role"];
+
+            if ($role != "teacher") {
+                return new JsonResponse(["msg" => "unauthorized"], 401, []);
+            }
+
+            $classroom = $classroomRepo->findOneBy(['id' => $classId]);
+            if ($classroom == null) {
+                return new JsonResponse(["msg" => "class not found"], 404, []);
+            }
+
+            if ($classroom->getTeacherId() != $userId) {
+                return new JsonResponse(["msg" => "not your class"], 401, []);
+            }
+
+            $classroomRepo->remove($classroom, true);
+
+            return new JsonResponse(["msg" => "deleted"], 200, []);
         } catch (\Exception $err) {
             return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
@@ -254,35 +317,6 @@ class ClassroomController extends AbstractController
             }
 
             return new JsonResponse(["msg" => "deleted!"], 200, []);
-        } catch (\Exception $err) {
-            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
-        }
-    }
-
-    //REMOVE CLASS
-    #[Route('/api/classroom/remove/{classId}', name: 'app_classroom_leave', methods: ['GET'])]
-    public function removeClass(Request $request, ClassroomRepository $classroomRepo, UserRepository $userRepo, SessionRepository $sessionRepo, $classId)
-    {
-        try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-            $userId = $authInfo["userId"];
-            $role = $authInfo["role"];
-
-            if ($role != "teacher" && $role != "admin") {
-                return new JsonResponse(["msg" => "unauthorized"], 401, []);
-            }
-
-            $classRoom = $classroomRepo->findOneBy(["id" => $classId]);
-            if ($classRoom == null) {
-                return new JsonResponse(["msg" => "class not found"], 404, []);
-            }
-
-            if ($role == 'teacher' && $classRoom->getTeacherId() != $userId) {
-                return new JsonResponse(["msg" => "not your class"], 401, []);
-            }
-
-            $classroomRepo->remove($classRoom, true);
-            return new JsonResponse(["msg" => "Delete Successfully"], 200, []);
         } catch (\Exception $err) {
             return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
