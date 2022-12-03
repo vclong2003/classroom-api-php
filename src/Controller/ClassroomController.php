@@ -5,10 +5,12 @@ namespace App\Controller;
 use App\Entity\Classroom;
 use App\Entity\Student;
 use App\Repository\ClassroomRepository;
+use App\Repository\PostsRepository;
 use App\Repository\SessionRepository;
 use App\Repository\StudentRepository;
 use App\Repository\UserInfoRepository;
 use App\Repository\UserRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -81,7 +83,7 @@ class ClassroomController extends AbstractController
 
     //REMOVE CLASS
     #[Route('/api/classroom/{classId}', name: 'app_classroom_leave', methods: ['DELETE'])]
-    public function removeClass($classId, Request $request, ClassroomRepository $classroomRepo, UserRepository $userRepo, SessionRepository $sessionRepo)
+    public function removeClass($classId, Request $request, ClassroomRepository $classroomRepo, UserRepository $userRepo, SessionRepository $sessionRepo, PostsRepository $postRepo, StudentRepository $studentRepo, ManagerRegistry $managerReg)
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);

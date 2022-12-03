@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use ApiPlatform\Metadata\Post;
 use App\Entity\Classroom;
+use App\Entity\ClassSession;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -32,10 +34,29 @@ class ClassroomRepository extends ServiceEntityRepository
 
     public function remove(Classroom $entity, bool $flush = false): void
     {
-        $this->getEntityManager()->remove($entity);
+        $entityManager = $this->getEntityManager();
 
+        $postRepo = $entityManager->getRepository(Post::class);
+        $posts = $postRepo->findBy(['classId' => $entity->getId()]);
+        foreach ($posts as $post) {
+            $postRepo->remove($post);
+        }
+
+        $studentRepo = $entityManager->getRepository(Student::class);
+        $students = $studentRepo->findBy(['classId' => $entity->getId()]);
+        foreach ($students as $student) {
+            $studentRepo->remove($student);
+        }
+
+        $classSessionRepo = $entityManager->getRepository(ClassSession::class);
+        $classSessions = $classSessionRepo->findBy(['classId' => $entity->getId()]);
+        foreach ($classSessions as $classSession) {
+            $classSessionRepo->remove($classSession);
+        }
+
+        $entityManager->remove($entity);
         if ($flush) {
-            $this->getEntityManager()->flush();
+            $entityManager->flush();
         }
     }
 
