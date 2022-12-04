@@ -5,6 +5,8 @@ namespace App\Repository;
 use ApiPlatform\Metadata\Post;
 use App\Entity\Classroom;
 use App\Entity\ClassSession;
+use App\Entity\Posts;
+use App\Entity\Student;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -36,22 +38,22 @@ class ClassroomRepository extends ServiceEntityRepository
     {
         $entityManager = $this->getEntityManager();
 
-        $postRepo = $entityManager->getRepository(Post::class);
+        $postRepo = $entityManager->getRepository(Posts::class);
         $posts = $postRepo->findBy(['classId' => $entity->getId()]);
         foreach ($posts as $post) {
             $postRepo->remove($post);
-        }
-
-        $studentRepo = $entityManager->getRepository(Student::class);
-        $students = $studentRepo->findBy(['classId' => $entity->getId()]);
-        foreach ($students as $student) {
-            $studentRepo->remove($student);
         }
 
         $classSessionRepo = $entityManager->getRepository(ClassSession::class);
         $classSessions = $classSessionRepo->findBy(['classId' => $entity->getId()]);
         foreach ($classSessions as $classSession) {
             $classSessionRepo->remove($classSession);
+        }
+
+        $studentRepo = $entityManager->getRepository(Student::class);
+        $students = $studentRepo->findBy(['classId' => $entity->getId()]);
+        foreach ($students as $student) {
+            $studentRepo->remove($student);
         }
 
         $entityManager->remove($entity);
