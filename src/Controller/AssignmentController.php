@@ -266,5 +266,3 @@ class AssignmentController extends AbstractController
         }
     }
 }
-
-//tested

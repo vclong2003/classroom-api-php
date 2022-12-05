@@ -61,7 +61,7 @@ class AuthController extends AbstractController
             $data = json_decode($request->getContent(), true); //convert data to associative array
 
             if ($data["email"] == "" || $data["password"] == "") {
-                return new JsonResponse(["Message" => "Please enter full fields"], 400, []);
+                return new JsonResponse(["msg" => "Please enter full fields"], 400, []);
             }
 
             $user = $userRepo->findOneBy(["email" => $data['email']]);

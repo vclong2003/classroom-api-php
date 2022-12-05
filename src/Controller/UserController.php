@@ -60,22 +60,4 @@ class UserController extends AbstractController
             return new JsonResponse(["Message" => $err->getMessage()], 400, []);
         }
     }
-
-    // #[Route('/api/user/remove/{userId}', name: 'app_user_remove', methods: ['GET'])]
-    // public function deleteUser(Request $request, UserRepository $userRepository, SessionRepository $sessionRepository, $userId): Response
-    // {
-    //     try {
-    //         $uId = findUserId($request, $sessionRepository);
-    //         $role = $userRepository->findOneBy(["id" => $uId])->getRole();
-
-    //         if ($role == "Admin") {
-    //             $user = $userRepository->findOneBy(["id" => $userId]);
-    //             $userRepository->remove($user);
-    //             $userRepository->save($user, true);
-    //             return new JsonResponse(["message" => "Delete User Successfully"], 200, []);
-    //         }
-    //     } catch (\Exception $err) {
-    //         return new JsonResponse(["Message" => $err->getMessage()], 400, []);
-    //     }
-    // }
 }
