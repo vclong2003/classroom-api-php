@@ -55,16 +55,19 @@ class AdminController extends AbstractController
         }
     }
 
+    //GET USER LIST
+    //optional: searchVal (?searchVal=...) *search by email
     #[Route('/admin/api/user', name: 'app_admin_get_users',  methods: ['GET'])]
     public function getAllUser(Request $request, UserRepository $userRepo,  ManagerRegistry $managerReg): Response
     {
+        $searchVal = $request->query->get('searchVal') ? $request->query->get('searchVal') : '';
         try {
 
             if (!$this->verifySessionId($managerReg, $request)) {
                 return new JsonResponse(['msg' => 'unauthorized'], 403, []);
             }
 
-            $users = $userRepo->findAll();
+            $users = $userRepo->customFindBy($searchVal);
 
             return new JsonResponse($users, 200, []);
         } catch (\Exception $err) {

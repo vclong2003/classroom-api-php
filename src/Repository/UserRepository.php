@@ -40,6 +40,17 @@ class UserRepository extends ServiceEntityRepository
         }
     }
 
+    public function customFindBy($searchVal)
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.email LIKE :val')
+            ->setParameter('val', '%' . $searchVal . '%')
+            ->orderBy('u.id', 'ASC')
+            ->setMaxResults(20)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return User[] Returns an array of User objects
     //     */
