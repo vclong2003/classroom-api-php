@@ -25,6 +25,9 @@ class AssignmentController extends AbstractController
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+            }
             $userId = $authInfo["userId"];
             $role = $authInfo["role"];
 
@@ -68,8 +71,9 @@ class AssignmentController extends AbstractController
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-            $userId = $authInfo["userId"];
-            $role = $authInfo["role"];
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+            }
 
             $class = $classRepo->findOneBy(["id" => $classId]);
             if ($class == null) {
@@ -101,8 +105,11 @@ class AssignmentController extends AbstractController
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+            }
             $userId = $authInfo["userId"];
-            $role = $authInfo["role"];
+
 
             $class = $classRepo->findOneBy(["id" => $classId]);
             if ($class == null) {
@@ -144,8 +151,10 @@ class AssignmentController extends AbstractController
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+            }
             $userId = $authInfo["userId"];
-            $role = $authInfo["role"];
 
             $class = $classRepo->findOneBy(["id" => $classId]);
             if ($class == null) {
@@ -181,47 +190,6 @@ class AssignmentController extends AbstractController
         }
     }
 
-    //DELETE ASM
-    //takes: classId, postId, asmId
-    #[Route('/api/classroom/{classId}/post/{postId}/assignment/{asmId}', name: 'app_asm_delete', methods: ["DELETE"])]
-    public function deleteAssignment($classId, $postId, $asmId, PostsRepository $postRepo, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, AssignmentRepository $asmRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo): Response
-    {
-        try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-            $userId = $authInfo["userId"];
-            $role = $authInfo["role"];
-
-            $class = $classRepo->findOneBy(["id" => $classId]);
-            if ($class == null) {
-                return new JsonResponse(['msg' => 'class not found'], 404, []);
-            }
-
-            $student = $studentRepo->findOneBy(["classId" => $classId, "userId" => $userId]);
-            if ($student == null) {
-                return new JsonResponse(['msg' => 'not your class'], 401, []);
-            }
-
-            $post = $postRepo->findOneBy(["id" => $postId]);
-            if ($post == null) {
-                return new JsonResponse(["msg" => 'post not found'], 404, []);
-            }
-
-            $asm = $asmRepo->findOneBy(['id' => $asmId]);
-            if ($asm == null) {
-                return new JsonResponse(['msg' => 'asm not found'], 404, []);
-            }
-            if ($asm->getUserId() != $userId) {
-                return new JsonResponse(['msg' => 'not your asm'], 401, []);
-            }
-
-            $asmRepo->remove($asm, true);
-
-            return new JsonResponse(['msg' => 'deleted'], 200, []);
-        } catch (\Exception $err) {
-            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
-        }
-    }
-
     //SET ASM MARK
     //takes: classId, postId, asmId
     //body param: 'mark'
@@ -230,6 +198,9 @@ class AssignmentController extends AbstractController
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+            }
             $userId = $authInfo["userId"];
             $role = $authInfo["role"];
 

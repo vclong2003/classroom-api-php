@@ -23,10 +23,21 @@ class AttendanceController extends AbstractController
     //takes: classId
     //body params: <studentId> : <isAttend> - Example: {"1": true, "9": true, "10": true,...}
     #[Route('/api/classroom/{classId}/classSession', name: 'app_attendances_add', methods: ['POST'])]
-    public function addAttendances($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, ClassroomRepository $classRepo, ClassSessionRepository $classSessionRepo, AttendanceRepository $attendanceRepo,  ManagerRegistry $doctrine)
-    {
+    public function addAttendances(
+        $classId,
+        Request $request,
+        SessionRepository $sessionRepo,
+        UserRepository $userRepo,
+        ClassroomRepository $classRepo,
+        ClassSessionRepository $classSessionRepo,
+        AttendanceRepository $attendanceRepo,
+        ManagerRegistry $doctrine
+    ) {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+            }
             $userId = $authInfo["userId"];
             $role = $authInfo["role"];
 
@@ -72,10 +83,19 @@ class AttendanceController extends AbstractController
     //GET CLASS_SESSIONS (ATTENDANCES GROUP)
     //takes: classId
     #[Route('/api/classroom/{classId}/classSession', name: 'app_classSession_get', methods: ['GET'])]
-    public function getClassSession($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, ClassroomRepository $classRepo, ClassSessionRepository $classSessionRepo)
-    {
+    public function getClassSession(
+        $classId,
+        Request $request,
+        SessionRepository $sessionRepo,
+        UserRepository $userRepo,
+        ClassroomRepository $classRepo,
+        ClassSessionRepository $classSessionRepo
+    ) {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+            }
             $userId = $authInfo["userId"];
             $role = $authInfo["role"];
 
@@ -115,6 +135,9 @@ class AttendanceController extends AbstractController
     ) {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+            }
             $userId = $authInfo["userId"];
             $role = $authInfo["role"];
 
@@ -155,10 +178,22 @@ class AttendanceController extends AbstractController
     //takes: classId, classSessionId
     //body params: <studentId> : <isAttend> - Example: {"1": true, "9": true, "10": true,...}
     #[Route('/api/classroom/{classId}/classSession/{classSessionId}/attendances', name: 'app_attendances_update', methods: ['POST'])]
-    public function updateAttendances($classId, $classSessionId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, ClassroomRepository $classRepo, ClassSessionRepository $classSessionRepo, AttendanceRepository $attendanceRepo, ManagerRegistry $doctrine)
-    {
+    public function updateAttendances(
+        $classId,
+        $classSessionId,
+        Request $request,
+        SessionRepository $sessionRepo,
+        UserRepository $userRepo,
+        ClassroomRepository $classRepo,
+        ClassSessionRepository $classSessionRepo,
+        AttendanceRepository $attendanceRepo,
+        ManagerRegistry $doctrine
+    ) {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+            }
             $userId = $authInfo["userId"];
             $role = $authInfo["role"];
 
@@ -214,10 +249,21 @@ class AttendanceController extends AbstractController
     //GET ATTENDANCE SUMMERIZATION
     //takes: classId
     #[Route('/api/classroom/{classId}/adtendanceSummarization', name: 'app_classroom_getSum', methods: ['GET'])]
-    public function getAttendanceSum($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, ClassroomRepository $classRepo, ClassSessionRepository $classSessionRepo, AttendanceRepository $attendanceRepo, UserInfoRepository $userInfoRepo)
-    {
+    public function getAttendanceSum(
+        $classId,
+        Request $request,
+        SessionRepository $sessionRepo,
+        UserRepository $userRepo,
+        ClassroomRepository $classRepo,
+        ClassSessionRepository $classSessionRepo,
+        AttendanceRepository $attendanceRepo,
+        UserInfoRepository $userInfoRepo
+    ) {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+            }
             $userId = $authInfo["userId"];
             $role = $authInfo["role"];
 

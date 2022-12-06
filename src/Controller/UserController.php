@@ -15,10 +15,17 @@ class UserController extends AbstractController
 {
     //GET SINGLE USER
     #[Route('/api/user', name: 'app_user_getSingle', methods: ['GET'])]
-    public function getSingleUser(UserInfoRepository $userInfoRepo, UserRepository $userRepo, Request $request, SessionRepository $sessionRepo): Response
-    {
+    public function getSingleUser(
+        UserInfoRepository $userInfoRepo,
+        UserRepository $userRepo,
+        Request $request,
+        SessionRepository $sessionRepo
+    ): Response {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+            }
             $userId = $authInfo["userId"];
 
             $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
@@ -36,10 +43,17 @@ class UserController extends AbstractController
     // body params: name, dob, phoneNumber, address, imageUrl
     // return: updated user info
     #[Route('/api/user', name: 'app_user_update', methods: ['POST'])]
-    public function updateUser(UserInfoRepository $userInfoRepo, UserRepository $userRepo, Request $request, SessionRepository $sessionRepo): Response
-    {
+    public function updateUser(
+        UserInfoRepository $userInfoRepo,
+        UserRepository $userRepo,
+        Request $request,
+        SessionRepository $sessionRepo
+    ): Response {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+            }
             $userId = $authInfo["userId"];
             $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
 

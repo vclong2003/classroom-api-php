@@ -10,10 +10,8 @@ use App\Repository\UserInfoRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class AuthController extends AbstractController
 {
@@ -23,7 +21,7 @@ class AuthController extends AbstractController
     public function register(UserRepository $userRepo, Request $request, UserInfoRepository $userInfoRepo)
     {
         try {
-            $data = json_decode($request->getContent(), true);    //convert data to associative array
+            $data = json_decode($request->getContent(), true); //convert data to associative array
 
             $user = new User();
 
@@ -93,7 +91,7 @@ class AuthController extends AbstractController
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
-                return new JsonResponse(["msg" => 'session not valid'], 406, []);
+                return new JsonResponse(["msg" => 'session not valid'], 401, []);
             }
             $role = $authInfo["role"];
 

@@ -21,10 +21,21 @@ class PostController extends AbstractController
     //GET POST
     // take: classId
     #[Route('/api/classroom/{classId}/post', name: 'app_post_get', methods: ['GET'])]
-    public function getPost($classId, UserRepository $userRepo, PostsRepository $postRepo,  Request $request, SessionRepository $sessionRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo, AssignmentRepository $asmRepo)
-    {
+    public function getPost(
+        $classId,
+        UserRepository $userRepo,
+        PostsRepository $postRepo,
+        Request $request,
+        SessionRepository $sessionRepo,
+        ClassroomRepository $classRepo,
+        StudentRepository $studentRepo,
+        AssignmentRepository $asmRepo
+    ) {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+            }
             $userId = $authInfo["userId"];
             $role = $authInfo['role'];
 
@@ -70,10 +81,22 @@ class PostController extends AbstractController
     //GET SINGLE POST
     // take: classId
     #[Route('/api/classroom/{classId}/post/{postId}', name: 'app_post_getSingle', methods: ['GET'])]
-    public function getSinglePost($classId, $postId, UserRepository $userRepo, PostsRepository $postRepo,  Request $request, SessionRepository $sessionRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo, AssignmentRepository $asmRepo)
-    {
+    public function getSinglePost(
+        $classId,
+        $postId,
+        UserRepository $userRepo,
+        PostsRepository $postRepo,
+        Request $request,
+        SessionRepository $sessionRepo,
+        ClassroomRepository $classRepo,
+        StudentRepository $studentRepo,
+        AssignmentRepository $asmRepo
+    ) {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            if ($authInfo == null) {
+                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+            }
             $userId = $authInfo["userId"];
             $role = $authInfo['role'];
 
@@ -125,13 +148,22 @@ class PostController extends AbstractController
     // takes: classId
     // body params: isAssignment, content
     #[Route('/api/classroom/{classId}/post', name: 'app_post_add', methods: ['POST'])]
-    public function addPost($classId, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, PostsRepository $postRepo, ClassroomRepository $classRepo): Response
-    {
+    public function addPost(
+        $classId,
+        Request $request,
+        SessionRepository $sessionRepo,
+        UserRepository $userRepo,
+        PostsRepository $postRepo,
+        ClassroomRepository $classRepo
+    ): Response {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+        if ($authInfo == null) {
+            return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+        }
         $userId = $authInfo["userId"];
         $role = $authInfo["role"];
 
-        if ($role != "admin" && $role != "teacher") {
+        if ($role != "teacher") {
             return new JsonResponse(["msg" => "unauthorized!"], 401, []);
         }
 
@@ -163,13 +195,23 @@ class PostController extends AbstractController
     // takes: classId, postId
     // body params: isAssignment, content
     #[Route('/api/classroom/{classId}/post/{postId}', name: 'app_post_update', methods: ['POST'])]
-    public function updatePost($classId, $postId, Request $request, UserRepository $userRepo, PostsRepository $postRepo, SessionRepository $sessionRepo, ClassroomRepository $classRepo)
-    {
+    public function updatePost(
+        $classId,
+        $postId,
+        Request $request,
+        UserRepository $userRepo,
+        PostsRepository $postRepo,
+        SessionRepository $sessionRepo,
+        ClassroomRepository $classRepo
+    ) {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+        if ($authInfo == null) {
+            return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+        }
         $userId = $authInfo["userId"];
         $role = $authInfo["role"];
 
-        if ($role != "admin" && $role != "teacher") {
+        if ($role != "teacher") {
             return new JsonResponse(["msg" => "unauthorized!"], 401, []);
         }
 
@@ -199,9 +241,19 @@ class PostController extends AbstractController
     //DELETE POST
     //takes: classId and postId
     #[Route('/api/classroom/{classId}/post/{postId}', name: 'app_post_delete', methods: ['DELETE'])]
-    public function deletePost(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, PostsRepository $postRepo, $classId, $postId, ClassroomRepository $classRepo)
-    {
+    public function deletePost(
+        Request $request,
+        SessionRepository $sessionRepo,
+        UserRepository $userRepo,
+        PostsRepository $postRepo,
+        $classId,
+        $postId,
+        ClassroomRepository $classRepo
+    ) {
         $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+        if ($authInfo == null) {
+            return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
+        }
         $userId = $authInfo["userId"];
         $role = $authInfo["role"];
 

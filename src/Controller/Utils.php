@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Repository\SessionRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 function getAuthInfo(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
 {
@@ -14,13 +13,20 @@ function getAuthInfo(Request $request, SessionRepository $sessionRepo, UserRepos
     $session = $sessionRepo->findOneBy(["sessionId" => $sessionId]);
     if ($session == null) {
         return null;
-    } else {
-        $userId = $session->getUserId();
-
-        $user = $userRepo->findOneBy(["id" => $userId]);
-        $role = $user->getRole();
-
-        $dataArray = ["userId" => $userId, "role" => strtolower($role)];
-        return $dataArray;
     }
+
+    $currentTime = time();
+    if ($currentTime > strtotime($session->getExpire())) {
+        return null;
+    }
+
+    $userId = $session->getUserId();
+    $user = $userRepo->findOneBy(["id" => $userId]);
+    if ($user == null) {
+        return null;
+    }
+    $role = $user->getRole();
+
+    $dataArray = ["userId" => $userId, "role" => strtolower($role)];
+    return $dataArray;
 }
