@@ -98,7 +98,7 @@ class PostController extends AbstractController
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
             $userId = $authInfo->getId();
-            $role = $authInfo['role'];
+            $role = $authInfo->getRole();
 
             $class = $classRepo->findOneBy(["id" => $classId]);
             if ($class == null) {
@@ -283,3 +283,5 @@ class PostController extends AbstractController
         }
     }
 }
+
+//backup
