@@ -51,7 +51,8 @@ class AuthController extends AbstractController
     }
 
     //LOGIN
-    //takes: email, password; return sessionId when logged in successfully
+    //takes: email, password
+    //return: sessionId 
     #[Route('/api/auth/login', name: 'app_auth_login', methods: ['POST'])]
     public function login(UserRepository $userRepo, Request $request, SessionRepository $sessionRepo)
     {
@@ -84,7 +85,7 @@ class AuthController extends AbstractController
         }
     }
 
-    //GET USER ROLE, using sessionId
+    //GET USER ROLE
     #[Route('/api/auth/role', name: 'app_auth_getRole', methods: ['GET'])]
     public function test(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
     {

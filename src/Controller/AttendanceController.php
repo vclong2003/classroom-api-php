@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Attendance;
 use App\Entity\ClassSession;
-use App\Entity\UserInfo;
 use App\Repository\AttendanceRepository;
 use App\Repository\ClassroomRepository;
 use App\Repository\ClassSessionRepository;
@@ -110,7 +109,7 @@ class AttendanceController extends AbstractController
             if ($class->getTeacherId() != $userId) {
                 return new JsonResponse(['msg' => 'not your class'], 404, []);
             }
-            
+
             $classSessions = $classSessionRepo->findBy(['classId' => $classId], ['time' => 'DESC']);
 
             return new JsonResponse($classSessions, 200, []);
@@ -169,78 +168,6 @@ class AttendanceController extends AbstractController
             }
 
             return new JsonResponse($dataArray, 200, []);
-        } catch (\Exception $err) {
-            return new JsonResponse(["msg" => $err->getMessage()], 400, []);
-        }
-    }
-
-    //UPDATE ATTENDANCES
-    //takes: classId, classSessionId
-    //body params: <studentId> : <isAttend> - Example: {"1": true, "9": true, "10": true,...}
-    #[Route('/api/classroom/{classId}/classSession/{classSessionId}/attendances', name: 'app_attendances_update', methods: ['POST'])]
-    public function updateAttendances(
-        $classId,
-        $classSessionId,
-        Request $request,
-        SessionRepository $sessionRepo,
-        UserRepository $userRepo,
-        ClassroomRepository $classRepo,
-        ClassSessionRepository $classSessionRepo,
-        AttendanceRepository $attendanceRepo,
-        ManagerRegistry $doctrine
-    ) {
-        try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
-            if ($authInfo == null) {
-                return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
-            }
-            $userId = $authInfo->getId();
-            $role = $authInfo->getRole();
-
-            if ($role != 'teacher') {
-                return new JsonResponse(['msg' => 'unauthorized'], 401, []);
-            }
-
-            $class = $classRepo->findOneBy(['id' => $classId]);
-            if ($class == null) {
-                return new JsonResponse(['msg' => 'class not found'], 404, []);
-            }
-            if ($class->getTeacherId() != $userId) {
-                return new JsonResponse(['msg' => 'not your class'], 404, []);
-            }
-
-            $classSession = $classSessionRepo->findOneBy(['id' => $classSessionId]);
-            if ($classSession == null) {
-                return new JsonResponse(['msg' => 'class session not found'], 404, []);
-            }
-
-            $data = json_decode($request->getContent(), true); //convert data to associative array
-            if ($data == null) {
-                return new JsonResponse(['msg' => 'data not found'], 400, []);
-            }
-
-            $attendances = $attendanceRepo->findBy(['classSessionId' => $classSessionId]);
-
-            $currentAttendancesData = array();
-            foreach ($attendances as $attendance) {
-                $currentAttendancesData[$attendance->getUserId()] = $attendance->isIsAttend();
-            }
-            if (
-                array_diff_key($currentAttendancesData, $data)
-                != array_diff_key($data, $currentAttendancesData)
-            ) {
-                return new JsonResponse(['msg' => 'data not match'], 400, []);
-            }
-
-            $entityManager = $doctrine->getManager();
-            foreach ($attendances as $attendance) {
-                $studentId = $attendance->getUserId();
-                $attendance->setIsAttend($data[$studentId]);
-                $attendanceRepo->save($attendance);
-            }
-            $entityManager->flush();
-
-            return new JsonResponse($attendances, 200, []);
         } catch (\Exception $err) {
             return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }

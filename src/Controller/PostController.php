@@ -14,7 +14,6 @@ use App\Repository\AssignmentRepository;
 use App\Repository\ClassroomRepository;
 use App\Repository\PostsRepository;
 use App\Repository\StudentRepository;
-use Doctrine\Persistence\ManagerRegistry;
 
 class PostController extends AbstractController
 {
@@ -283,5 +282,3 @@ class PostController extends AbstractController
         }
     }
 }
-
-//backup
