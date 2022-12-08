@@ -33,8 +33,8 @@ class ClassroomController extends AbstractController
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
-            $userId = $authInfo["userId"];
-            $role = $authInfo["role"];
+            $userId = $authInfo->getId();
+            $role = $authInfo->getRole();
 
             if ($role != "teacher") {
                 return new JsonResponse(["msg" => "unauthorized"], 401, []);
@@ -70,8 +70,8 @@ class ClassroomController extends AbstractController
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
-            $userId = $authInfo["userId"];
-            $role = $authInfo["role"];
+            $userId = $authInfo->getId();
+            $role = $authInfo->getRole();
 
             if ($role != "teacher") {
                 return new JsonResponse(["msg" => "unauthorized"], 401, []);
@@ -111,8 +111,8 @@ class ClassroomController extends AbstractController
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
-            $userId = $authInfo["userId"];
-            $role = $authInfo["role"];
+            $userId = $authInfo->getId();
+            $role = $authInfo->getRole();
 
             if ($role != "teacher") {
                 return new JsonResponse(["msg" => "unauthorized"], 401, []);
@@ -151,8 +151,8 @@ class ClassroomController extends AbstractController
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
-            $userId = $authInfo["userId"];
-            $role = $authInfo["role"];
+            $userId = $authInfo->getId();
+            $role = $authInfo->getRole();
 
             $searchVal = $request->query->get('searchVal') ? $request->query->get('searchVal') : '';
 
@@ -250,7 +250,7 @@ class ClassroomController extends AbstractController
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
-            $userId = $authInfo["userId"];
+            $userId = $authInfo->getId();
 
             $class = $classroomRepo->findOneBy(["id" => $classId]);
             if ($class == null) {
@@ -293,7 +293,7 @@ class ClassroomController extends AbstractController
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
-            $role = $authInfo["role"];
+            $role = $authInfo->getRole();
 
             $class = $classroomRepo->findOneBy(["id" => $classId]);
             if ($class == null) {
@@ -355,8 +355,8 @@ class ClassroomController extends AbstractController
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
-            $userId = $authInfo["userId"];
-            $role = $authInfo["role"];
+            $userId = $authInfo->getId();
+            $role = $authInfo->getRole();
 
             $class = $classroomRepo->findOneBy(["id" => $classId]);
             if ($class == null) {

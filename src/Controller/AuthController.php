@@ -93,7 +93,7 @@ class AuthController extends AbstractController
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'session not valid'], 401, []);
             }
-            $role = $authInfo["role"];
+            $role = $authInfo->getRole();
 
             return new JsonResponse(["role" => $role], 202, []);
         } catch (\Exception $err) {

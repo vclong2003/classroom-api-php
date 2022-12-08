@@ -36,7 +36,7 @@ class PostController extends AbstractController
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
-            $userId = $authInfo["userId"];
+            $userId = $authInfo->getId();
             $role = $authInfo['role'];
 
             $class = $classRepo->findOneBy(["id" => $classId]);
@@ -97,7 +97,7 @@ class PostController extends AbstractController
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
-            $userId = $authInfo["userId"];
+            $userId = $authInfo->getId();
             $role = $authInfo['role'];
 
             $class = $classRepo->findOneBy(["id" => $classId]);
@@ -160,8 +160,8 @@ class PostController extends AbstractController
         if ($authInfo == null) {
             return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
         }
-        $userId = $authInfo["userId"];
-        $role = $authInfo["role"];
+        $userId = $authInfo->getId();
+        $role = $authInfo->getRole();
 
         if ($role != "teacher") {
             return new JsonResponse(["msg" => "unauthorized!"], 401, []);
@@ -208,8 +208,8 @@ class PostController extends AbstractController
         if ($authInfo == null) {
             return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
         }
-        $userId = $authInfo["userId"];
-        $role = $authInfo["role"];
+        $userId = $authInfo->getId();
+        $role = $authInfo->getRole();
 
         if ($role != "teacher") {
             return new JsonResponse(["msg" => "unauthorized!"], 401, []);
@@ -254,8 +254,8 @@ class PostController extends AbstractController
         if ($authInfo == null) {
             return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
         }
-        $userId = $authInfo["userId"];
-        $role = $authInfo["role"];
+        $userId = $authInfo->getId();
+        $role = $authInfo->getRole();
 
         if ($role != "teacher") {
             return new JsonResponse(["msg" => "unauthorized!"], 401, []);

@@ -25,8 +25,6 @@ function getAuthInfo(Request $request, SessionRepository $sessionRepo, UserRepos
     if ($user == null) {
         return null;
     }
-    $role = $user->getRole();
 
-    $dataArray = ["userId" => $userId, "role" => strtolower($role)];
-    return $dataArray;
+    return $user;
 }
