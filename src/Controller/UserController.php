@@ -38,27 +38,31 @@ class UserController extends AbstractController
             return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
     }
+
     //CHANGE ROLE
+    //body param: role
     #[Route('/api/user/role', name: 'app_user_changeRole', methods: ['POST'])]
     public function changeRole(
-        UserInfoRepository $userInfoRepo,
         UserRepository $userRepo,
         Request $request,
         SessionRepository $sessionRepo
     ): Response {
         try {
+            $predefinedRole = ['student', 'teacher'];
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
-            $userId = $authInfo->getId();
 
-            $userInfo = $userInfoRepo->findOneBy(["userId" => $userId]);
-            if ($userInfo == null) {
-                return new JsonResponse(["msg" => "user not found!"], 404, []);
-            } else {
-                return new JsonResponse($userInfo, 200, []);
+            $data = json_decode($request->getContent(), true);
+            $roleToSet = $data['role'];
+            if ($roleToSet == null || !in_array($roleToSet, $predefinedRole)) {
+                return new JsonResponse(['msg' => 'role not valid'], 406, []);
             }
+            $authInfo->setRole($roleToSet);
+            $userRepo->save($authInfo, true);
+
+            return new JsonResponse(['msg' => 'role set'], 200, []);
         } catch (\Exception $err) {
             return new JsonResponse(["msg" => $err->getMessage()], 400, []);
         }
