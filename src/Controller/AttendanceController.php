@@ -110,7 +110,7 @@ class AttendanceController extends AbstractController
             if ($class->getTeacherId() != $userId) {
                 return new JsonResponse(['msg' => 'not your class'], 404, []);
             }
-
+            
             $classSessions = $classSessionRepo->findBy(['classId' => $classId], ['time' => 'DESC']);
 
             return new JsonResponse($classSessions, 200, []);
