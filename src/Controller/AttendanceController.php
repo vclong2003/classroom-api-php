@@ -34,7 +34,7 @@ class AttendanceController extends AbstractController
         ManagerRegistry $doctrine
     ) {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -92,7 +92,7 @@ class AttendanceController extends AbstractController
         ClassSessionRepository $classSessionRepo
     ) {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -134,7 +134,7 @@ class AttendanceController extends AbstractController
         UserInfoRepository $userInfoRepo
     ) {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -188,7 +188,7 @@ class AttendanceController extends AbstractController
         UserInfoRepository $userInfoRepo
     ) {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }

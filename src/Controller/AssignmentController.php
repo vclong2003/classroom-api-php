@@ -25,7 +25,7 @@ class AssignmentController extends AbstractController
     public function getAssignment($postId, $classId, PostsRepository $postRepo, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, AssignmentRepository $asmRepo, ClassroomRepository $classRepo, UserInfoRepository $userInfoRepo): Response
     {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -71,7 +71,7 @@ class AssignmentController extends AbstractController
     public function getSingleAssignment($postId, $classId, $asmId, PostsRepository $postRepo, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, AssignmentRepository $asmRepo, ClassroomRepository $classRepo): Response
     {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -105,7 +105,7 @@ class AssignmentController extends AbstractController
     public function addAssignment($classId, $postId, PostsRepository $postRepo, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, AssignmentRepository $asmRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo): Response
     {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -151,7 +151,7 @@ class AssignmentController extends AbstractController
     public function editAssignment($classId, $postId, $asmId, PostsRepository $postRepo, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, AssignmentRepository $asmRepo, ClassroomRepository $classRepo, StudentRepository $studentRepo): Response
     {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -198,7 +198,7 @@ class AssignmentController extends AbstractController
     public function setAsmMark($classId, $postId, $asmId, PostsRepository $postRepo, Request $request, SessionRepository $sessionRepo, UserRepository $userRepo, AssignmentRepository $asmRepo, ClassroomRepository $classRepo): Response
     {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }

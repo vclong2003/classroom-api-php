@@ -32,7 +32,7 @@ class PostController extends AbstractController
         AssignmentRepository $asmRepo
     ) {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -93,7 +93,7 @@ class PostController extends AbstractController
         AssignmentRepository $asmRepo
     ) {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -156,7 +156,7 @@ class PostController extends AbstractController
         PostsRepository $postRepo,
         ClassroomRepository $classRepo
     ): Response {
-        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+        $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
         if ($authInfo == null) {
             return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
         }
@@ -204,7 +204,7 @@ class PostController extends AbstractController
         SessionRepository $sessionRepo,
         ClassroomRepository $classRepo
     ) {
-        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+        $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
         if ($authInfo == null) {
             return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
         }
@@ -250,7 +250,7 @@ class PostController extends AbstractController
         $postId,
         ClassroomRepository $classRepo
     ) {
-        $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+        $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
         if ($authInfo == null) {
             return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
         }

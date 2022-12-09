@@ -28,7 +28,7 @@ class ClassroomController extends AbstractController
         SessionRepository $sessionRepo
     ): Response {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -65,7 +65,7 @@ class ClassroomController extends AbstractController
         SessionRepository $sessionRepo
     ): Response {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -106,7 +106,7 @@ class ClassroomController extends AbstractController
         SessionRepository $sessionRepo,
     ) {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -146,7 +146,7 @@ class ClassroomController extends AbstractController
         StudentRepository $studentRepo
     ): Response {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -208,7 +208,7 @@ class ClassroomController extends AbstractController
         SessionRepository $sessionRepo
     ): Response {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -245,7 +245,7 @@ class ClassroomController extends AbstractController
         ClassroomRepository $classroomRepo
     ): Response {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -288,7 +288,7 @@ class ClassroomController extends AbstractController
         ClassroomRepository $classroomRepo
     ): Response {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -350,7 +350,7 @@ class ClassroomController extends AbstractController
         ClassroomRepository $classroomRepo
     ): Response {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }

@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-
 use App\Repository\SessionRepository;
 use App\Repository\UserInfoRepository;
 use App\Repository\UserRepository;
@@ -25,7 +24,7 @@ class UserController extends AbstractController
         SessionRepository $sessionRepo
     ): Response {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -52,7 +51,7 @@ class UserController extends AbstractController
     ): Response {
         try {
             $predefinedRole = ['student', 'teacher'];
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }
@@ -82,7 +81,7 @@ class UserController extends AbstractController
         SessionRepository $sessionRepo
     ): Response {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'unauthorized!'], 401, []);
             }

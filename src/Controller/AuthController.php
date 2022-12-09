@@ -90,7 +90,7 @@ class AuthController extends AbstractController
     public function getRole(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
     {
         try {
-            $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);
+            $authInfo = Utils::getAuthInfo($request, $sessionRepo, $userRepo);
             if ($authInfo == null) {
                 return new JsonResponse(["msg" => 'session not valid'], 401, []);
             }
