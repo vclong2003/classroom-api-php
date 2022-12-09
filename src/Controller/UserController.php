@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+
 use App\Repository\SessionRepository;
 use App\Repository\UserInfoRepository;
 use App\Repository\UserRepository;
@@ -11,8 +12,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+
 class UserController extends AbstractController
 {
+
     //GET SINGLE USER
     #[Route('/api/user', name: 'app_user_getSingle', methods: ['GET'])]
     public function getSingleUser(

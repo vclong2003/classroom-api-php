@@ -87,7 +87,7 @@ class AuthController extends AbstractController
 
     //GET USER ROLE
     #[Route('/api/auth/role', name: 'app_auth_getRole', methods: ['GET'])]
-    public function test(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
+    public function getRole(Request $request, SessionRepository $sessionRepo, UserRepository $userRepo)
     {
         try {
             $authInfo = getAuthInfo($request, $sessionRepo, $userRepo);

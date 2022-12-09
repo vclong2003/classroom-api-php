@@ -1,7 +1,5 @@
 <?php
 
-namespace App\Controller;
-
 use App\Repository\SessionRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Request;
