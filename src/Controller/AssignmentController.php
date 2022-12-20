@@ -228,6 +228,10 @@ class AssignmentController extends AbstractController
             }
 
             $data = json_decode($request->getContent(), true); //convert data to associative array
+
+            if ($data['mark'] > 10 || $data['mark'] < 0) {
+                return new JsonResponse(['msg' => 'invalid mark'], 400, []);
+            }
             $asm->setMark($data['mark']);
 
             $asmRepo->save($asm, true);
